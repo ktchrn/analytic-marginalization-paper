@@ -32,7 +32,7 @@
 %\affiliation{Space Telescope Science Institute, 3700 San Martin Drive, Baltimore, MD 21218, USA}
 
 \begin{abstract}
-but doctor, I'm Abstractacci
+absorption line fitting; speeding it up; well-motivated ways of selecting parameters; large spectroscopic surveys
 \end{abstract}
 
 \keywords{methods: statistical}
@@ -371,40 +371,7 @@ big absorption line surveys of all sorts going on right now; also analysis of sy
 can't manually look at all of them!!
 therefore, need way of automatically selecting continuum complexity; marginalization is an easy way to go.
 
-(do I need an actual example? I'll ask Yong about this tomorrow)
-
-\subsection{Marginalization over absorption parametrizations}
-\label{subsec:ncomponents-marginalization}
-deciding on number of absorption parameters is a problem with a range of solutions.
-as with continuum parametrization, there can be different motivations for it.
-automation/reproducibility; automation is less of a thing because it's expensive; however, maybe can parallelize?
-complicated spectra are more of a thing; important complication is spectral resolution and narrow lines.
-can't necessarily decide how many components there are, need to actually marginalize over different component structures to get correct uncertainties on total column!
-
-how to decide on number of parameters? also Bayes!
-small (2, 3 maximum) possible number of components---brute force or importance sampling.
-reason you can do this is because you don't have to worry about continuum parameters; if they were present, even 2 or 3 components would be unfeasible.
-
-unknown or known large possible number of components---reversible jump MCMC.
-how does RJMCMC work?
-
-analytic marginalization has obvious advantage in terms of autocorrelation time at fixed model.
-big and important advantage: easier to mix between models.
-partially marginalized likelihood has less contrast than unmarginalized likelihood.
-this translates into a higher acceptance fraction for +1 or -1 component proposals, which is extremely important.
-
-can show this in a brute force way with one vs. two components.
-here's a spectrum where there are two sneaky narrow components.
-transition probability from one to two depends on proposal distribution etc.; we can isolate the effect of the likelihood term, since all else will be equal.
-key is the likelihood ratio between start point and proposed point.
-a simple proposal: add a component keeping the current one fixed; remove a component keeping the other one fixed.
-better proposals exist, but the likelihood ratios will behave in similar ways.
-
-compare distributions of likelihood ratios.
-brute force it: here's a set of starting points, here's a massive set of proposed points.
-here are distributions.
-clearly, unless you can come up with an incredible smart proposal, it's significantly better to use the analytically marginalized version.
-
+example one (only example?): generate simple spectra with continua of different orders, fit lines with assumed orders vs. marginalization over orders
 
 \section{Discussion}
 \label{sec:discussion}
