@@ -297,8 +297,13 @@ The uncertainties associated with these spectra are usually assumed to be diagon
   \label{fig:uncorr-sparse-L-logp}
 \end{figure}
 
+\section{Test cases}
+In
 
-\subsection{Test case: multiple absorption lines}
+
+\subsection{Usefulness of continuum marginalization in general}
+
+\subsection{MCMC efficiency}
 \label{subsec:multiple-absorption-line-test-case}
 
 \begin{figure}
@@ -356,22 +361,36 @@ When this ratio is greater than 1, running MCMC with the marginalized likelihood
 The greater the number of regions and the order of the continuum, the greater the efficiency advantage of the marginalized likelihood over the unmarginalized likelihood.
 This advantage will not depend on the number of datapoints in each spectral region so long as the LSF is trivial or banded, since the evaluation time of both likelihoods grows linearly with dataset length (see Section \ref{subsec:scaling}).
 
-\subsection{Marginalization over continuum parametrizations}
-\label{subsec:contparametrization-marginalization}
-you can trivially marginalize over what the continuum is when you have analytics.
-you can't really do that if you don't marginalize simultaneously and it's very hard to marginalize without analytics.
-why is that? so many parameters.
-time cost is manageable and "linear."
+\subsection{Usefulness of marginalization over continuum parameterizations}
+form of positive effect: if you don't have external information telling you the correct continuum parametrization, marginalizing over parametrizations reduces the error of your column density measurements.
+the most practical way to marginalize over parametrizations is to use analytic marginalization.
 
-advantages of marginalizing over continuum parametrizations are different in different use cases.
-just very complicated continua (such as that exceptionally wacky HSLA one or one of the confusing ones from my 2015 depletion paper), where it's hard to qualitatively say "this is the right model" and you just actually want to consider the possibility of different parametrizations.
+problem set-up: you again have a single line that we're assuming is on the linear part of the curve of growth; easy case.
+this line is (again) superimposed on a polynomial continuum of order 0, 1, or 2.
+the objective is to measure the column density of the line as well as possible.
+as in the first subsection, we use optimization rather than sampling and integration to measure the column density.
+the quality of measurement is again characterized using the root mean square error of the recovered column densities relative to the input column density.
 
-automation of spectral analysis.
-big absorption line surveys of all sorts going on right now; also analysis of synthetic observations.
-can't manually look at all of them!!
-therefore, need way of automatically selecting continuum complexity; marginalization is an easy way to go.
+we consider NTKTK possible cases: you know the continuum, you know the continuum order, you use the highest continuum order for everything (conservative), you marginalize over having a continuum of order 0, 1, and 2.
+in the first subsection, we looked at RMSE as a function of SNR.
+here, we will be looking at RMSE / (RMSE known continuum).
+for the solution methods we consider here, this ratio is essentially constant as a function of SNR, so we do everything at SNR=50.
 
-example one (only example?): generate simple spectra with continua of different orders, fit lines with assumed orders vs. marginalization over orders
+we measured the column density NTKTK for each combination of objective functions and orders.
+the RMSE / (RMSE known continuum) for each method as a function of actual continuum order is shown in Figure refTKTK.
+marginalization over parametrization is more-or-less correctly selecting the correct order: the parametrization-marginalized curve closely follows the known-continuum-order curve.
+at orders below 2, making the conservative assumption instead of marginalizing over parametrizations leads to an RMSE that is about \%30TKTK higher.
+at second order, assuming everything is second order is slightly better than marginalizing over parametrizations.
+the average improvement from marginalizing over parametrizations will depend on the mix.
+
+if it's pretty even, assuming a parametrization means doing worse by up to \%30TKTK relative to marginalizing over parametrizations.
+assuming SNR that goes as the square root of observing time, that means that marginalizing over parametrizations with data taken over time $N$ is equivalent to making a conservative continuum assumption with data taken over time $1.5 \times N$.
+the amount of improvement will be different with lines of different depths and with different velocity structures (e.g. multiple components).
+the basic principle that marginalizing over parametrizations will (for a small and manageable increase in computation time) increase the precision and accuracy of column density measurements.
+
+the use case we're thinking of here is a big survey where you can't look at each spectrum.
+automated and reproducible way of handling continuum that, unlike other automated ways of continuum normalization, does not introduce an SNR-dependent bias (since there's no sigma clipping involved).
+enable cool science with GALAH, Gaia, APOGEE, etc.!
 
 \section{Discussion}
 \label{sec:discussion}
