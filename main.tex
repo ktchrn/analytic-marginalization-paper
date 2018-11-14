@@ -298,8 +298,11 @@ The uncertainties associated with these spectra are usually assumed to be diagon
 \end{figure}
 
 \section{Test cases}
-In
-
+we look at three artificial data scenarios to explore the usefulness of analytic continuum marginalization.
+first, we determine the regime in which continuum marginalization (through whatever means) produces different results from simultaneous absorption line and continuum fitting.
+second, we look at the relative speeds of analytic and numerical marginalization of continuum parameters when using MCMC to infer the absorption line properties.
+third, we look at different strategies for choosing a continuum parametrization when the true parametrization is not known a priori.
+The results of these tests can be summarized as follows: when analyzing low SNR data, continuum marginalization is more accurate and precise than continuum fitting; MCMC with analytic continuum marginalization converges faster than MCMC that includes continuum parameters, but the post-convergence sampling speeds of the two approaches are equal to within a factor of a few; marginalizing over parametrizations provides significantly better accuracy and precision than assuming a conservative, flexible continuum parametrization.
 
 \subsection{Usefulness of continuum marginalization in general}
 
