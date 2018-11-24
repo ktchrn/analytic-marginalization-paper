@@ -304,7 +304,26 @@ second, we look at the relative speeds of analytic and numerical marginalization
 third, we look at different strategies for choosing a continuum parametrization when the true parametrization is not known a priori.
 The results of these tests can be summarized as follows: when analyzing low SNR data, continuum marginalization is more accurate and precise than continuum fitting; MCMC with analytic continuum marginalization converges faster than MCMC that includes continuum parameters, but the post-convergence sampling speeds of the two approaches are equal to within a factor of a few; marginalizing over parametrizations provides significantly better accuracy and precision than assuming a conservative, flexible continuum parametrization.
 
-\subsection{Usefulness of continuum marginalization in general}
+\subsection{Fitting vs. marginalization}
+This section could be structurally revised I think. Maybe the first paragraph establishes the importance of this test? Maybe that's already done above? In any case, need to think about tradeoff between how much detail and arc is given in the intro paragraphs vs. in the main part of the narrative. The current intro paragraphs are too dense to provide a clear overview.
+
+The test case we consider here is determining the parameters---column density, center, and breadth---of a single absorption line superimposed on a continuum whose parametrization is known but whose parameters are not known.
+To do this test, we generate spectra consisting of a polynomial continuum, a single absorption line, and Gaussian noise, then use different optimization methods to find best-fit values for the absorption line parameters.
+We consider three methods for dealing with the continuum: marginalization of continuum parameters; simultaneous fitting of continuum and absorption line parameters; and first fitting a continuum to a line-free portion of the spectrum, then fitting the absorption line parameters assuming this continuum.
+For the sake of comparison, we also fit for the absorption line parameters given the true continuum.
+This method provides an upper bound on the attainable fit quality.
+
+We use the root mean square error (RMSE) of the recovered parameters relative to the input parameters to assess the fit quality.
+In particular, we focus on the RMSE of the logarithm of the column density, $\log_{10}{\rm N}$.
+We determine the $\log_{10}{\rm N}$ RMSE attained by the four fitting methods at different values of the continuum signal-to-noise ratio (SNR) of the spectrum.
+We find that above an SNR threshold whose exact value depends on the complexity of the continuum and the actual parameters of the line in question, marginalization and both fitting methods do equally well.
+Below this threshold, column densities determined using a continuum-marginalized likelihood have a lower RMSE than column densities determined with simultaneous or two-stage fitting.
+
+Here are more detailed descriptions of the four methods. This may take more than one paragraph.
+
+Here is the numerical setup: the SNR values, the number of realizations.
+
+The result, again.
 
 \subsection{MCMC efficiency}
 \label{subsec:multiple-absorption-line-test-case}
