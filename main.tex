@@ -268,7 +268,7 @@ To empirically confirm these growth rates, we timed how long it takes to evaluat
 The scenarios are: $\vx{L}$ is the identity mapping, $\vx{K}$ is diagonal; $\vx{L}$ is a dense matrix, $\vx{K}$ is general; and $\vx{L}$ is a sparse, banded matrix and $\vx{K}$ is diagonal.
 The first two scenarios are the fastest and slowest combination.
 The third scenario is more typical for a spectrum; the data uncertainty is diagonal, the line spread function has finite extent.
-The evaluation time of the log-likelhood as a function of $M$ and $P+Q$ for these three scenarios is shown in Figures \ref{fig:uncorr-no-L-logp}, \ref{fig:corr-yes-L-logp}, and \ref{fig:uncorr-sparse-L-logp}.
+The evaluation time of the log-likelihood as a function of $M$ and $P+Q$ for these three scenarios is shown in Figures \ref{fig:uncorr-no-L-logp}, \ref{fig:corr-yes-L-logp}, and \ref{fig:uncorr-sparse-L-logp}.
 We do not show the evaluation time of the gradient because it behaves in the same way as the evaluation time of the log-likelihood in all three scenarios; the most expensive step of the two calculations is the same.
 
 The dependence of computation time on $M$ and $P+Q$ generally agrees with the predictions based on the two most time-consuming steps.
@@ -297,14 +297,14 @@ The uncertainties associated with these spectra are usually assumed to be diagon
   \label{fig:uncorr-sparse-L-logp}
 \end{figure}
 
-\section{Test cases}
+\section{Practical test cases}
 we look at three artificial data scenarios to explore the usefulness of analytic continuum marginalization.
 first, we determine the regime in which continuum marginalization (through whatever means) produces different results from simultaneous absorption line and continuum fitting.
 second, we look at the relative speeds of analytic and numerical marginalization of continuum parameters when using MCMC to infer the absorption line properties.
 third, we look at different strategies for choosing a continuum parametrization when the true parametrization is not known a priori.
 The results of these tests can be summarized as follows: when analyzing low SNR data, continuum marginalization is more accurate and precise than continuum fitting; MCMC with analytic continuum marginalization converges faster than MCMC that includes continuum parameters, but the post-convergence sampling speeds of the two approaches are equal to within a factor of a few; marginalizing over parametrizations provides significantly better accuracy and precision than assuming a conservative, flexible continuum parametrization.
 
-\subsection{Fitting vs. marginalization}
+\subsection{Fitting vs. marginalization of parameters}
 This section could be structurally revised I think. Maybe the first paragraph establishes the importance of this test? Maybe that's already done above? In any case, need to think about tradeoff between how much detail and arc is given in the intro paragraphs vs. in the main part of the narrative. The current intro paragraphs are too dense to provide a clear overview.
 
 The test case we consider here is determining the parameters---column density, center, and breadth---of a single absorption line superimposed on a continuum whose parametrization is known but whose parameters are not known.
@@ -325,65 +325,7 @@ Here is the numerical setup: the SNR values, the number of realizations.
 
 The result, again.
 
-\subsection{MCMC efficiency}
-\label{subsec:multiple-absorption-line-test-case}
-
-\begin{figure}
-  \includegraphics{convergence.pdf}
-  \caption{Rubin-Gelman statistic}
-  \label{fig:convergence-comparison}
-\end{figure}
-
-\begin{figure}
-  \includegraphics{efficiency.pdf}
-  \caption{Independent samples per second}
-  \label{fig:efficiency-comparison}
-\end{figure}
-
-Motivate and pose the problem
-In ISM absorption spectra, it is common to have multiple lines in a spectrum with shared parameters
-These lines can be from the same species, e.g. the Lyman series, or from different species, e.g. from Mg\small{I}, Zn\small{II}, and Cr\small{II} in the near ultraviolet.
-When these lines are in different regions in a spectrum, each region needs its own continuum parameters; this is the case in which BayesVP does not allow the inclusion of continuum parameters in inference.
-This is one of the scenarios in which analytic marginalization can be more efficient than MCMC marginalization
-
-We compare the two methods on how quickly MCMC done using each converges and how efficient MCMC done using each is post-convergence.
-Which comparison is more informative for choosing which method to use will depend on the purpose of the MCMC run.
-If the goal of an MCMC run is to estimate some value at low-to-moderate precision, the rate of convergence will be the more important factor.
-If the goal is to estimate some value at high precision, the burn-in period will usually be a small fraction of the total chain and post-convergency efficiency will be more important.
-
-We consider a case where there are $N$ absorption lines with shared velocity structure, i.e. central velocity and velocity width, but with different amplitudes.
-Each absorption line is in a different spectral region.
-The continuum in each spectral region is a polynomial of order $M$.
-The marginalized likelihood has $2 + N$ absorption line parameters.
-The unmarginalized likelihood has $2 + N$ absorption line parameters and $N \times M$ continuum parameters.
-We use the \texttt{emcee} implementation of the Goodman and Weare affine-invariant MCMC ensemble sampler to generate draws from the posterior corresponding to each of these likelihoods.
-We use the minimum number of `walkers,` which is twice the number of parameters.
-
-
-We use the Rubin-Gelman statistic $\hat{R}$ CITEP to assess convergence.
-We run ten MCMC instances for 12800 (per-walker) steps and compute the Rubin-Gelman statistic from the second half of sub-chains of length $2^p \times 100$ for $p=0, 1, \ldots, 7$.
-$\hat{R}$ is computed separately for each parameter.
-Following common usage, we consider convergence to be reached when the $\hat{R}$ of all parameters is less than $1.01$.
-We run this test for 1, 2, and 3 regions and absorption lines assuming a continuum of order 1, i.e. a straight line.
-The value of the $\hat{R}$ as a function of (total) number of steps is shown in Figure \ref{fig:convergence-comparison}.
-When there is a single region and line, the MCMC marginalization chain takes twice as many steps as the analytic marginalization chain to converge; when there are two regions, it takes eight times as many steps; when there are three, the MCMC marginalization  chain has not converged by the maximum chain length of 12800 while the analytic marginalization chain converges within 1600 steps.
-
-We use the number of independent samples per unit time to assess efficiency.
-We run MCMC with the marginalized likelihood for 2000 burn-in steps and 8000 converged steps and record the average time per sample, $t_s$
-Because MCMC with the unmarginalized likelihood takes many steps to converge, we use draws from the converged part of the marginalized likelihood chain as a starting point
-These draws only have values for the absorption line parameters
-At each set of absorption line parameters, we sample a set of continuum parameters from the conditional distribution discussed in Section \ref{subsec:conditionals}
-From this starting point, we run MCMC with the unmarginalized likelihood for 4000 burn-in steps and 36000 converged steps and record the average time per sample
-We then compute the average integrated autocorrelation times $\tau_f$ of the walkers in both chains.
-The number of independent samples per unit time is $n_i = \left(\tau_f \, t_s \right)^{-1}$.
-
-We compute $n_i$ for a number of regions $N = 1, 2, \ldots, 6$, continua of polynomial order $M=$ 1, 2, and 3, and either a trivial LSF or a banded LSF.
-The ratio $n_i^{\text{marg}} / n_i^{\text{unmarg}}$ for each of these cases is shown in Figure \ref{fig:efficiency-comparison}.
-When this ratio is greater than 1, running MCMC with the marginalized likelihood for a fixed amount of time will produce more independent samples than running MCMC with the unmarginalized likelihood for the same amount of time.
-The greater the number of regions and the order of the continuum, the greater the efficiency advantage of the marginalized likelihood over the unmarginalized likelihood.
-This advantage will not depend on the number of datapoints in each spectral region so long as the LSF is trivial or banded, since the evaluation time of both likelihoods grows linearly with dataset length (see Section \ref{subsec:scaling}).
-
-\subsection{Usefulness of marginalization over continuum parameterizations}
+\subsection{Fitting vs. marginalization for parametrizations}
 form of positive effect: if you don't have external information telling you the correct continuum parametrization, marginalizing over parametrizations reduces the error of your column density measurements.
 the most practical way to marginalize over parametrizations is to use analytic marginalization.
 
@@ -414,6 +356,64 @@ the use case we're thinking of here is a big survey where you can't look at each
 automated and reproducible way of handling continuum that, unlike other automated ways of continuum normalization, does not introduce an SNR-dependent bias (since there's no sigma clipping involved).
 enable cool science with GALAH, Gaia, APOGEE, etc.!
 
+\subsection{MCMC efficiency}
+\label{subsec:multiple-absorption-line-test-case}
+
+\begin{figure}
+  \includegraphics{convergence.pdf}
+  \caption{Rubin-Gelman statistic}
+  \label{fig:convergence-comparison}
+\end{figure}
+
+\begin{figure}
+  \includegraphics{efficiency.pdf}
+  \caption{Independent samples per second}
+  \label{fig:efficiency-comparison}
+\end{figure}
+
+In ISM absorption spectra, it is common to have multiple lines in a spectrum with shared parameters
+These lines can be from the same species, e.g. the Lyman series, or from different species, e.g. from Mg\small{I}, Zn\small{II}, and Cr\small{II} in the near ultraviolet.
+When these lines are in different regions in a spectrum, each region needs its own continuum parameters; this is the case in which BayesVP does not allow the inclusion of continuum parameters in inference.
+This is one of the scenarios in which analytic marginalization can be more efficient than MCMC marginalization.
+
+We compare the two methods on how quickly MCMC done using each converges and how efficient MCMC done using each is post-convergence.
+Which comparison is more informative for choosing which method to use will depend on the purpose of the MCMC run.
+If the goal of an MCMC run is to estimate some value at low-to-moderate precision, the rate of convergence will be the more important factor.
+If the goal is to estimate some value at high precision, the burn-in period will usually be a small fraction of the total chain and post-convergency efficiency will be more important.
+
+We consider a case where there are $N$ absorption lines with shared velocity structure, i.e. central velocity and velocity width, but with different amplitudes.
+Each absorption line is in a different spectral region.
+The continuum in each spectral region is a polynomial of order $M$.
+The marginalized likelihood has $2 + N$ absorption line parameters.
+The unmarginalized likelihood has $2 + N$ absorption line parameters and $N \times M$ continuum parameters.
+We use the \texttt{emcee} implementation of the Goodman and Weare affine-invariant MCMC ensemble sampler to generate draws from the posterior corresponding to each of these likelihoods.
+We use the minimum number of `walkers,` which is twice the number of parameters.
+
+
+We use the Rubin-Gelman statistic $\hat{R}$ CITEP to assess convergence.
+We run ten MCMC instances for 12800 (per-walker) steps and compute the Rubin-Gelman statistic from the second half of sub-chains of length $2^p \times 100$ for $p=0, 1, \ldots, 7$.
+$\hat{R}$ is computed separately for each parameter.
+Following common usage, we consider convergence to be reached when the $\hat{R}$ of all parameters is less than $1.01$.
+We run this test for 1, 2, and 3 regions and absorption lines assuming a continuum of order 1, i.e. a straight line.
+The value of the $\hat{R}$ as a function of (total) number of steps is shown in Figure \ref{fig:convergence-comparison}.
+When there is a single region and line, the MCMC marginalization chain takes twice as many steps as the analytic marginalization chain to converge; when there are two regions, it takes eight times as many steps; when there are three, the MCMC marginalization  chain has not converged by the maximum chain length of 12800 while the analytic marginalization chain converges within 1600 steps.
+
+We use the number of independent samples per unit time to assess efficiency.
+We run MCMC with the marginalized likelihood for 2000 burn-in steps and 8000 converged steps and record the average time per sample, $t_s$
+Because MCMC with the unmarginalized likelihood takes many steps to converge, we use draws from the converged part of the marginalized likelihood chain as a starting point
+These draws only have values for the absorption line parameters
+At each set of absorption line parameters, we sample a set of continuum parameters from the conditional distribution discussed in Section \ref{subsec:conditionals}
+From this starting point, we run MCMC with the unmarginalized likelihood for 4000 burn-in steps and 36000 converged steps and record the average (wall) time per sample
+We then compute the average integrated autocorrelation times $\tau_f$ of the walkers in both chains.
+The number of independent samples per unit time is $n_i = \left(\tau_f \, t_s \right)^{-1}$.
+
+We compute $n_i$ for a number of regions $N = 1, 2, \ldots, 6$, continua of polynomial order $M=$ 1, 2, and 3, and either a trivial LSF or a banded LSF.
+The ratio $n_i^{\text{marg}} / n_i^{\text{unmarg}}$ for each of these cases is shown in Figure \ref{fig:efficiency-comparison}.
+When this ratio is greater than 1, running MCMC with the marginalized likelihood for a fixed amount of time will produce more independent samples than running MCMC with the unmarginalized likelihood for the same amount of time.
+The greater the number of regions and the order of the continuum, the greater the efficiency advantage of the marginalized likelihood over the unmarginalized likelihood.
+This advantage will not depend on the number of datapoints in each spectral region so long as the LSF is trivial or banded, since the evaluation time of both likelihoods grows linearly with dataset length (see Section \ref{subsec:scaling}).
+
+
 \section{Discussion}
 \label{sec:discussion}
 The main weakness of the analytic marginalization formulas used in this package are the restrictive and unphysical assumptions that the formulas require.
@@ -442,12 +442,27 @@ One advantage of analytic marginalization over this solution is that it is very 
 \section{Conclusion}
 \label{sec:conclusion}
 have a package that computes marginal likelihoods and their gradients
-idea of marginalizing out linear parameters is not entirely new -- done in the Joker and we independently did it (over a finite range because we had just one MLNP) in these other two papers.
-the new stuff is: including something analogous to an LSF, calculating the derivatives, providing a general use package
+idea of marginalizing over linear parameters is not new, but to best of our knowledge had not been applied to problem of absorption line continua.
+there are some problem-specific features, e.g. LSFs, which can be handled more efficiently with a purpose-built package.
 
-have shown that this package is fast enough to use over a range of dataset sizes, provides certain benefits
-package was designed to solve continuum problem, but applicable to a number of other things
+have carried out tests on whether continuum marginalization is any better than several simpler approaches.
+ have shown that in terms of accuracy of recovered parameters, marginalization is best way of doing "simple," "local" continua.
+true on two levels: if you have a good guess as to the correct parametrization, marginalizing over the parameters will, at low SNR, get you more accurate parameter recovery.
+if you only have a good guess as to the set of plausible parametrizations, marginalizing over parametrizations and parameters within each parametrization is almost as good as knowing the correct parametrization.
+marginalizing over parametrizations will, on average, yield more accurate parameter values than any of the other strategies we tested. (do I need to test picking a parametrization using a likelihood test?)
+this extra accuracy is free! it's like having a higher SNR spectrum and analyzing it in the simpler, less-good way.
+this extra accuracy does not require much extra compute and (when line placement is known) can be used automatically, making it great for analysis of data from massive spectroscopic surveys.
 
+have also considered an ``opposite'' case, a single spectrum with many different lines that you want to analyze very carefully with MCMC.
+analytic continuum marginalization can dramatically speed up convergence of MCMC and shorten chain autocorrelation times (since there are fewer parameters to deal with numerically).
+when there are many continuum parameters to deal with (as is the case when you have a bunch of splines, e.g.), shortening of autocorrelation times can mean more independent samples per second---greater efficiency.
+
+list of results:
+\begin{itemize}
+  \item likelihood and gradient
+  \item package implementing the above
+  \item demonstration that continuum marginalization is practically useful in terms of achieving greater accuracy and, in some cases, efficiency
+\end{itemize}
 
 \acknowledgments
 
