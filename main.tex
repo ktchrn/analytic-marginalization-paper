@@ -304,57 +304,70 @@ second, we look at the relative speeds of analytic and numerical marginalization
 third, we look at different strategies for choosing a continuum parametrization when the true parametrization is not known a priori.
 The results of these tests can be summarized as follows: when analyzing low SNR data, continuum marginalization is more accurate and precise than continuum fitting; MCMC with analytic continuum marginalization converges faster than MCMC that includes continuum parameters, but the post-convergence sampling speeds of the two approaches are equal to within a factor of a few; marginalizing over parametrizations provides significantly better accuracy and precision than assuming a conservative, flexible continuum parametrization.
 
-\subsection{Fitting vs. marginalization of parameters}
-This section could be structurally revised I think. Maybe the first paragraph establishes the importance of this test? Maybe that's already done above? In any case, need to think about tradeoff between how much detail and arc is given in the intro paragraphs vs. in the main part of the narrative. The current intro paragraphs are too dense to provide a clear overview.
+\subsection{Marginalization over parameters}
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/marginalized_unmarginalized_labeled.pdf}
+  \caption{RMSE of different ways of estimating column densities assuming a known continuum parametrization.}
+  \label{fig:order-known-comparison}
+\end{figure}
+- Problem statement
+  - We consider the following problem:
+    - What is the column density of a single absorption line on a continuum whose parametrization is known?
+    - NTKTK variations on the problem:
+      - The problem itself, and you want to simultaneously fit for the absorption parameters and continuum parameters
+      - The problem itself, and you want to fit for the absorption parameters while marginalizing over the continuum parameters
+      - What if you also know the continuum parameters, i.e. the correct continuum shape?
+      - What if you have an ``optimal'' guess as to where the line-free portion of the continuum is?
+    - How well can you recover the column density in each of these cases?
+- Method
+  - Make spectra containing an absorption line with fixed parameters but with different continuum parameters and (Gaussian) noise levels.
+  - For each spectrum, consider each case. ``Consider'' means find the optimal set of absorption line parameters using different objective functions in each case.
+    - Simultaneous fit: objective function is sum of square standardized differences, get to vary line and continuum parameters
+    - Marginalization for continuum: objective function is opposite of continuum-marginalized log-likelihood, get to vary line parameters
+    - Known continuum: objective function is sum of square differences, only vary line parameters
+    - Line-free portion guess: two objective functions, one for fitting continuum to line-free region, then use "known continuum" objective with result of first part to get absorption line part
+  - To "guess" line-free region, motivated by an estimate of what a human looking through these spectra would do by eye.
+    - Perfectly guess where the continuum passes by eye; perfectly guess what the optimal absorption line would look like given a perfect guess of where the continuum passes; pick the part of the spectrum where the optimal absorption line has negligible opacity.
+    - Mechanically, use the part of the spectrum where the absorption line from the known continuum case has negligible opacity.
+  - Consider continuum of order 0 (varying constant), 1 (line), 2 (quadratic).
+  - Consider signal-to-noise levels  5TKTK to 25TKTK.
+  - Do 1000TKTK continuum + noise realizations for each continuum order and SNR.
+  - Define "well" as RMSE of log column density; includes bias and variance.
+- Results:
+  - Figure \ref{fig:order-known-comparison}
+  - This is better than this in these regimes
+- Discussion:
+  - What does it mean that this is better than this?
+  - How well should the result generalize to cases that were not tested?
 
-The test case we consider here is determining the parameters---column density, center, and breadth---of a single absorption line superimposed on a continuum whose parametrization is known but whose parameters are not known.
-To do this test, we generate spectra consisting of a polynomial continuum, a single absorption line, and Gaussian noise, then use different optimization methods to find best-fit values for the absorption line parameters.
-We consider three methods for dealing with the continuum: marginalization of continuum parameters; simultaneous fitting of continuum and absorption line parameters; and first fitting a continuum to a line-free portion of the spectrum, then fitting the absorption line parameters assuming this continuum.
-For the sake of comparison, we also fit for the absorption line parameters given the true continuum.
-This method provides an upper bound on the attainable fit quality.
+\subsection{Marginalization over parametrizations}
+- Problem statement
+  - We consider the following problem:
+    - What is the column density of a single absorption line on a continuum whose parametrization is one of several known possibilities?
+    - NTKTK variations on the problem:
+      - You know the correct continuum parametrization. Since it was shown in the previous section that it's better to marginalize than fit over the parameters themselves, this is done with continuum marginalization.
+      - Conservatively, you use the most complicated parametrization among the known possibilities. This only makes sense if the parametrizations are nested. In this case, they are: we are using polynomials.
+      - Marginalize over parametrizations and parameters. Parametrizations would not need to be nested; doesn't really matter.
+    - Again, how well do you recover the column density?
+- Method
+  - As before, make spectra; same number, same orders.
+  - SNRs now 10 to 50; want to show that relative quality is consistent even as SNR gets high
+  - "well" is again RMSE of log column density.
+  - Objective functions:
+    - Objective functions of known or assumed order cases are the opposite of the appropriate marginalized log-likelihood
+    - Objective function of order-marginalized case is sum of marginalized likelihoods
+    - n.b. at most complicated order, conservative and known order are identical
+- Results
+  - Figure
+  - Marginalizing is better than assuming conservative case when conservative case does not apply; this is maybe not surprising.
+  - What is maybe surprising (and cool) is that marginalizing is only very slightly worse than knowing the correct order
+- Discussion
+  - The context here, remember, is that you have a lot of spectra which are all a little different, have different "correct" continuum parametrizations
+  - One way to think about betterness is in terms of how much more SNR you need with conservative assumption than with marginalization to achieve same RMSE
+  - pretty consistent across SNR, TKTK for 0th order, TKTK for 1st order, and TKTK (less than 1 because you actually do slightly better) for 2nd order.
+  - e.g. if [0, 1, 2] order polynomial family is adequate and you have equal amounts of each, marginalizing means you can get away with average SNR that's X times lower than making a conservative assumption; don't even get me started on if you were fitting and being conservative!
+  - Assuming SNR propto sqrt(t), that's X TKTK times more observing time to get the same result; not a trivial amount.
 
-We use the root mean square error (RMSE) of the recovered parameters relative to the input parameters to assess the fit quality.
-In particular, we focus on the RMSE of the logarithm of the column density, $\log_{10}{\rm N}$.
-We determine the $\log_{10}{\rm N}$ RMSE attained by the four fitting methods at different values of the continuum signal-to-noise ratio (SNR) of the spectrum.
-We find that above an SNR threshold whose exact value depends on the complexity of the continuum and the actual parameters of the line in question, marginalization and both fitting methods do equally well.
-Below this threshold, column densities determined using a continuum-marginalized likelihood have a lower RMSE than column densities determined with simultaneous or two-stage fitting.
-
-Here are more detailed descriptions of the four methods. This may take more than one paragraph.
-
-Here is the numerical setup: the SNR values, the number of realizations.
-
-The result, again.
-
-\subsection{Fitting vs. marginalization for parametrizations}
-form of positive effect: if you don't have external information telling you the correct continuum parametrization, marginalizing over parametrizations reduces the error of your column density measurements.
-the most practical way to marginalize over parametrizations is to use analytic marginalization.
-
-problem set-up: you again have a single line that we're assuming is on the linear part of the curve of growth; easy case.
-this line is (again) superimposed on a polynomial continuum of order 0, 1, or 2.
-the objective is to measure the column density of the line as well as possible.
-as in the first subsection, we use optimization rather than sampling and integration to measure the column density.
-the quality of measurement is again characterized using the root mean square error of the recovered column densities relative to the input column density.
-
-we consider NTKTK possible cases: you know the continuum, you know the continuum order, you use the highest continuum order for everything (conservative), you marginalize over having a continuum of order 0, 1, and 2.
-in the first subsection, we looked at RMSE as a function of SNR.
-here, we will be looking at RMSE / (RMSE known continuum).
-for the solution methods we consider here, this ratio is essentially constant as a function of SNR, so we do everything at SNR=50.
-
-we measured the column density NTKTK for each combination of objective functions and orders.
-the RMSE / (RMSE known continuum) for each method as a function of actual continuum order is shown in Figure refTKTK.
-marginalization over parametrization is more-or-less correctly selecting the correct order: the parametrization-marginalized curve closely follows the known-continuum-order curve.
-at orders below 2, making the conservative assumption instead of marginalizing over parametrizations leads to an RMSE that is about \%30TKTK higher.
-at second order, assuming everything is second order is slightly better than marginalizing over parametrizations.
-the average improvement from marginalizing over parametrizations will depend on the mix.
-
-if it's pretty even, assuming a parametrization means doing worse by up to \%30TKTK relative to marginalizing over parametrizations.
-assuming SNR that goes as the square root of observing time, that means that marginalizing over parametrizations with data taken over time $N$ is equivalent to making a conservative continuum assumption with data taken over time $1.5 \times N$.
-the amount of improvement will be different with lines of different depths and with different velocity structures (e.g. multiple components).
-the basic principle that marginalizing over parametrizations will (for a small and manageable increase in computation time) increase the precision and accuracy of column density measurements.
-
-the use case we're thinking of here is a big survey where you can't look at each spectrum.
-automated and reproducible way of handling continuum that, unlike other automated ways of continuum normalization, does not introduce an SNR-dependent bias (since there's no sigma clipping involved).
-enable cool science with GALAH, Gaia, APOGEE, etc.!
 
 \subsection{MCMC efficiency}
 \label{subsec:multiple-absorption-line-test-case}
