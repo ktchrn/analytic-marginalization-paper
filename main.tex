@@ -298,11 +298,19 @@ The uncertainties associated with these spectra are usually assumed to be diagon
 \end{figure}
 
 \section{Practical test cases}
-we look at three artificial data scenarios to explore the usefulness of analytic continuum marginalization.
-first, we determine the regime in which continuum marginalization (through whatever means) produces different results from simultaneous absorption line and continuum fitting.
-second, we look at the relative speeds of analytic and numerical marginalization of continuum parameters when using MCMC to infer the absorption line properties.
-third, we look at different strategies for choosing a continuum parametrization when the true parametrization is not known a priori.
-The results of these tests can be summarized as follows: when analyzing low SNR data, continuum marginalization is more accurate and precise than continuum fitting; MCMC with analytic continuum marginalization converges faster than MCMC that includes continuum parameters, but the post-convergence sampling speeds of the two approaches are equal to within a factor of a few; marginalizing over parametrizations provides significantly better accuracy and precision than assuming a conservative, flexible continuum parametrization.
+To demonstrate the usefulness of analytic marginalization in practical applications, we consider three test problems.
+The first problem is to determine the column density of an absorption line when continuum parameters are not known but the form of the continuum is known.
+The second problem is to determine a column density when the continuum parametrization is not known but the family of possible parametrizations is known.
+In these problems, we compare the accuracy and precision that can be attained using different fitting strategies.
+The third problem is to generate samples from a posterior probability distribution over absorption line parameters when the continuum parametrization is known.
+In this problem, we compare the computational efficiency of sampling with and without analytic marginalization over continuum parameters.
+
+We are considering two types of use cases in these comparisons.
+The first two problems are relevant for spectroscopic surveys with too many spectra to analyze manually.
+The comparison is between different ways of automatically treating the continuum.
+The third problem is relevant for careful Bayesian analysis of a small number of spectra.
+In particular, we are considering a case where absorption lines are spread over different spectra or segments of a spectrum.
+We find that continuum marginalization can increase the accuracy and precision of automated spectral line analysis and that analytic continuum marginalization can, in some cases, help accelerate sampling
 
 \subsection{Marginalization over parameters}
 \begin{figure}
@@ -341,6 +349,11 @@ The results of these tests can be summarized as follows: when analyzing low SNR 
   - How well should the result generalize to cases that were not tested?
 
 \subsection{Marginalization over parametrizations}
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/order_strategies_labeled.pdf}
+  \caption{Different ways of dealing with an unknown continuum parametrization}
+  \label{fig:order-unknown-comparison}
+\end{figure}
 - Problem statement
   - We consider the following problem:
     - What is the column density of a single absorption line on a continuum whose parametrization is one of several known possibilities?
