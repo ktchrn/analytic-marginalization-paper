@@ -12,6 +12,7 @@
 *.cb2
 .*.lb
 todo.txt
+*.DS_Store
 
 ## Intermediate documents:
 *.dvi
