@@ -298,6 +298,7 @@ The uncertainties associated with these spectra are usually assumed to be diagon
 \end{figure}
 
 \section{Practical test cases}
+\label{sec:test-cases}
 To demonstrate the usefulness of analytic marginalization in practical applications, we consider three test problems.
 The first problem is to determine the column density of an absorption line when continuum parameters are not known but the form of the continuum is known.
 The second problem is to determine a column density when the continuum parametrization is not known but the family of possible parametrizations is known.
@@ -310,7 +311,7 @@ The first two problems are relevant for spectroscopic surveys with too many spec
 The comparison is between different ways of automatically treating the continuum.
 The third problem is relevant for careful Bayesian analysis of a small number of spectra.
 In particular, we are considering a case where absorption lines are spread over different spectra or segments of a spectrum.
-We find that continuum marginalization can increase the accuracy and precision of automated spectral line analysis and that analytic continuum marginalization can, in some cases, help accelerate sampling
+We find that continuum marginalization can increase the accuracy and precision of automated spectral line analysis and that analytic continuum marginalization can, in some cases, help accelerate sampling.
 
 \subsection{Marginalization over parameters}
 \begin{figure}
@@ -442,28 +443,47 @@ This advantage will not depend on the number of datapoints in each spectral regi
 
 \section{Discussion}
 \label{sec:discussion}
-The main weakness of the analytic marginalization formulas used in this package are the restrictive and unphysical assumptions that the formulas require.
-The un-marginalized likelihood function is required to be Gaussian.
-Even just among types of dataset in which absorption lines can be found, this is not always a justifiable assumption.
-In particular, it does not apply to data where photon counts are small enough that the Gaussian approximation to the Poisson distribution is inappropriate.
-This package should be used with caution when analyzing X-ray spectra, for example.
+\subsection{Assumptions and consequences}
+- Assumptions made are Gaussianity, linearity, un-constrained, known covariance/uncertainty
+- Trivially does not apply to any absorption analysis problem; no background source produces negative flux.
+- Less tedious case is: observations in the low count rate, e.g. Poisson regime.
+- Poisson data break Gaussianity, not being constrained, and (if you're using sqrt(intensity) rather than a pre-assumed uncertainty) the covariance assumption.
+- First two mean you're doing an approximation; last one actually rules out using this particular analytic marginalization formula (though see work by Leistedt and Hogg, where just the covariance/uncertainty assumption is relaxed)
+- Importance of Gaussian vs. Poisson is just the usual "how good of an approximation is one distribution to the other" question
+- Basically, going to be in trouble with low-count X-ray or UV spectra; most optical and longer spectra are going to be fine.
 
-The linear nuisance parameters also cannot be bounded in any way.
-This is assumption is needed because integrals of the multivariate normal distribution over finite regions must be computed numerically.
-While numerical integration methods tailored specifically for this problem exist \citep{Genz:2009jp}, they are still much slower than the analytic integral over infinite regions.
-Unbounded MLNPs are often obviously unphysical.
-Stars never emit negative light but an unbounded MLNP description of a stellar continuum allows this possibility.
-This assumption can be particularly dangerous when the basis is physically motivated.
-The contribution of different stellar population templates to the spectrum of a galaxy, for example, should always be non-negative.
-Otherwise, the templates can be combined in a way that could not actually happen.
+- Continuum model envisioned here is linear because it's just an effective estimate that ignores (generally non-linear) physics
+- this will be fine in some applications: the simple continua of quasars, some rapidly rotating O stars; any time that the (pseudo-)continuum changes on wavelength scales that are substantially longer than the wavelength scale of the lines
+- this is possibly longer than you think; P Cygni profiles from stellar winds are funky, but can be described reasonably well by splines
+- Need models that are informed by physics for other cases: optical or NIR spectra of cooler stars (e.g. Zasowski)
+- MLNPs may still be useful here given that models of these spectra are not perfect; small corrections may be necessary and particularly important for weak lines!
 
-\subsection{What do the tests really tell you}
+- An assumption that is not necessary for analytic marginalization to be possible but is necessary for it to be useful is that the span of the absorption model includes the actually observed absorption.
+- In simpler terms, if you model a spectrum that contains two distinct lines with a single line, continuum marginalization will not save you.
+: Where do I put this comment? It's too short to be a separate paragraph and doesn't really fit into the other two paragraphs. Maybe the statement is: also need correct-enough model of the absorption itself? Hm.
 
-All of these tests were done using the \texttt{emcee}.
-We chose to use \texttt{emcee} because it is very commonly used astronomy in general and in Bayesian absorption line analysis packages in particular.
-More sophisticated or problem-specific proposal methods could potentially reduce the advantage of analytic marginalization over MCMC marginalization in terms of convergence rate and efficiency.
-One advantage of analytic marginalization over this solution is that it is very easy to add analytic marginalization to existing analysis code --- only the actual likelihood calculation step needs to be modified.
+\subsection{Towards automated absorption line analysis}
+- The test cases in Section \ref{sec:test-cases} showed that continuum marginalization in general and analytic marginalization in particular has some advatanges over other approaches to accounting for continua.
+- Here, we explore how these advantages could be applied in two use cases: automated but well-motivated analysis of lots of simple spectra and thorough, reproducible analysis of single complicated spectra.
+- In both cases, interested in making it possible to do \emph{blind} and reproducible analysis.
+- When testing hypotheses, good to do as much of the analysis as possible before looking at results to discourage tinkering with analysis to produce more desirable results.
+- Reproducibility is also a good idea and is not directly possible if people are analyzing spectra manually and actively participating in continuum placement.
 
+- to extract ISM absorption information from e.g. the SDSS spectroscopic surveys, two things need to be automated: finding absorption lines and accounting for the continuum.
+- this has always been done with fitting rather than marginalization, and selection of continuum parametrizations has not been done.
+- as was shown in one of the test cases, choosing a conservative parametrization leaves SNR on the table.
+- analytic marginalization means that one can do optimization for line parameters and marginalization and even parametrization selection for continuum parameters.
+- useful for samples of objects with heterogenous spectra, e.g. GALAH which has some hot main sequence stars and some cool giants; automatically use a simple model for the hot stars and more complicated model for the cool stars.
+- automation of finding absorption lines is more complicated.
+- past cases of line analyses in surveys have used prior information, e.g. the existence of a galaxy along the line of sight (citation).
+- to make blind, statistically sound ISM studies from large spectroscopic surveys possible, still need a way of locating lines; this is tricky, since absorption is non-linear.
+
+- Needs of careful analysis of individual spectra are the same: automate location of absorption lines and continuum placement.
+- Since you have only one spectrum, can use more time consuming methods; do inference rather than optimization.
+- Way of probabilistically placing lines already exists! ``Trans-dimensional inference," where the dimensionality of the problem, e.g. the number of absorption lines, is a parameter to be inferred.
+- e.g. ``Reversible Jump MCMC,'' which I used in CITET DEPLETION PAPER.
+- Particularly important for when instrument resolution is not sufficient to resolve finest lines present; unresolved structure can hide column density.
+- Having analytic continuum marginalization \& continuum parametrization selection here means that probabilistic analysis of individual spectra/small samples really can be automated and blinded.
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -490,7 +510,7 @@ list of results:
   \item demonstration that continuum marginalization is practically useful in terms of achieving greater accuracy and, in some cases, efficiency
 \end{itemize}
 
-\acknowledgments
+\acknowledgments People: Josh Peek, Andrew Fox, Yong Zheng, Andrew Casey, Cameron Liang
 
 \software{emcee \citep{2013PASP..125..306F},
 numpy \citep{vanderWalt:dp},
