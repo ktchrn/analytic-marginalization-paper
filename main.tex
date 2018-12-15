@@ -319,6 +319,7 @@ We find that continuum marginalization can increase the accuracy and precision o
   \caption{RMSE of different ways of estimating column densities assuming a known continuum parametrization.}
   \label{fig:order-known-comparison}
 \end{figure}
+
 - Problem statement
   - We consider the following problem:
     - What is the column density of a single absorption line on a continuum whose parametrization is known?
@@ -328,26 +329,29 @@ We find that continuum marginalization can increase the accuracy and precision o
       - What if you also know the continuum parameters, i.e. the correct continuum shape?
       - What if you have an ``optimal'' guess as to where the line-free portion of the continuum is?
     - How well can you recover the column density in each of these cases?
-- Method
-  - Make spectra containing an absorption line with fixed parameters but with different continuum parameters and (Gaussian) noise levels.
-  - For each spectrum, consider each case. ``Consider'' means find the optimal set of absorption line parameters using different objective functions in each case.
-    - Simultaneous fit: objective function is sum of square standardized differences, get to vary line and continuum parameters
-    - Marginalization for continuum: objective function is opposite of continuum-marginalized log-likelihood, get to vary line parameters
-    - Known continuum: objective function is sum of square differences, only vary line parameters
-    - Line-free portion guess: two objective functions, one for fitting continuum to line-free region, then use "known continuum" objective with result of first part to get absorption line part
-  - To "guess" line-free region, motivated by an estimate of what a human looking through these spectra would do by eye.
-    - Perfectly guess where the continuum passes by eye; perfectly guess what the optimal absorption line would look like given a perfect guess of where the continuum passes; pick the part of the spectrum where the optimal absorption line has negligible opacity.
-    - Mechanically, use the part of the spectrum where the absorption line from the known continuum case has negligible opacity.
-  - Consider continuum of order 0 (varying constant), 1 (line), 2 (quadratic).
-  - Consider signal-to-noise levels  5TKTK to 25TKTK.
-  - Do 1000TKTK continuum + noise realizations for each continuum order and SNR.
-  - Define "well" as RMSE of log column density; includes bias and variance.
-- Results:
-  - Figure \ref{fig:order-known-comparison}
-  - This is better than this in these regimes
-- Discussion:
-  - What does it mean that this is better than this?
-  - How well should the result generalize to cases that were not tested?
+
+| We consider the problem of measuring the column density of a single well-resolved, unsaturated absorption line on a continuum whose parametrization is known but whose parameters are not known.
+| This is the simplest problem that involves both absorption line and continuum parameters.
+| To do this, we generate spectra containing a fixed absorption line with different continuum parametrizations and signal-to-noise ratios (SNRs) and measure the column density from each of these spectra.
+| The summary statistic that we will use to indicate quality is the root mean square error (RMSE) of the base ten logarithm of the column density ($\log_{10}{\rm N}$).
+| We use the logarithm because physical constants (e.g. oscillator strengths) cancel in that RMSE calculation and because it is the logarithm of the column density that is usually reported.
+
+| We measure the column density in four ways: (1) supply the correct continuum parameters and only fit for the absorption line parameters; (2) simultaneously fit for continuum and absorption line parameters; (3) analytically marginalize over continuum parameters and fit for absorption line parameters; and (4) use the absorption line parameters recovered using method (1) to define a line-free spectral region, fit continuum parameters just to this region, and with those continuum parameters fit for the absorption line parameters.
+| The first method is meant to set a lower limit on the RMSE of $\log_{10}{\rm N}$ as a function of SNR.
+| The second and third methods are two possible ways of automatically accounting for the continuum.
+| The fourth method is meant to approximate the actions of a human manually analyzing a spectrum.
+| We assume the human can correctly estimate the continuum by eye (but not translate that into a number), can perfectly estimate the best-fit absorption line profile by eye given this continuum, and using this profile can determine which part of the spectrum is not affected by the line.
+
+| The continuum parametrizations we use are polynomials of order 0, 1, and 2.
+| We consider SNRs between 5 and 25.
+| To compute each RMSE, we generate 1000 spectra.
+| All spectra contain the same absorption line but have different continuum parameters and noise realizations.
+
+| The RMSEs obtained using these different methods are shown in Figure \ref{fig:order-known-comparison}.
+| Above an SNR of 10-15, all methods where the correct continuum parameters are not known a priori are equal.
+| At and below that SNR range, marginalization has a lower RMSE than both simultaneous fitting and human-like analysis.
+| The advantage of marginalization over the other methods becomes greater as the continuum parametrization becomes more complex.
+| \emph{Marginalization is always the most robust (in a statistical sense) method.}
 
 \subsection{Marginalization over parametrizations}
 \begin{figure}
