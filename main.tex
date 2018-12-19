@@ -320,16 +320,6 @@ We find that continuum marginalization can increase the accuracy and precision o
   \label{fig:order-known-comparison}
 \end{figure}
 
-- Problem statement
-  - We consider the following problem:
-    - What is the column density of a single absorption line on a continuum whose parametrization is known?
-    - NTKTK variations on the problem:
-      - The problem itself, and you want to simultaneously fit for the absorption parameters and continuum parameters
-      - The problem itself, and you want to fit for the absorption parameters while marginalizing over the continuum parameters
-      - What if you also know the continuum parameters, i.e. the correct continuum shape?
-      - What if you have an ``optimal'' guess as to where the line-free portion of the continuum is?
-    - How well can you recover the column density in each of these cases?
-
 | We consider the problem of measuring the column density of a single well-resolved, unsaturated absorption line on a continuum whose parametrization is known but whose parameters are not known.
 | This is the simplest problem that involves both absorption line and continuum parameters.
 | To do this, we generate spectra containing a fixed absorption line with different continuum parametrizations and signal-to-noise ratios (SNRs) and measure the column density from each of these spectra.
@@ -359,33 +349,29 @@ We find that continuum marginalization can increase the accuracy and precision o
   \caption{Different ways of dealing with an unknown continuum parametrization}
   \label{fig:order-unknown-comparison}
 \end{figure}
-- Problem statement
-  - We consider the following problem:
-    - What is the column density of a single absorption line on a continuum whose parametrization is one of several known possibilities?
-    - NTKTK variations on the problem:
-      - You know the correct continuum parametrization. Since it was shown in the previous section that it's better to marginalize than fit over the parameters themselves, this is done with continuum marginalization.
-      - Conservatively, you use the most complicated parametrization among the known possibilities. This only makes sense if the parametrizations are nested. In this case, they are: we are using polynomials.
-      - Marginalize over parametrizations and parameters. Parametrizations would not need to be nested; doesn't really matter.
-    - Again, how well do you recover the column density?
-- Method
-  - As before, make spectra; same number, same orders.
-  - SNRs now 10 to 50; want to show that relative quality is consistent even as SNR gets high
-  - "well" is again RMSE of log column density.
-  - Objective functions:
-    - Objective functions of known or assumed order cases are the opposite of the appropriate marginalized log-likelihood
-    - Objective function of order-marginalized case is sum of marginalized likelihoods
-    - n.b. at most complicated order, conservative and known order are identical
-- Results
-  - Figure
-  - Marginalizing is better than assuming conservative case when conservative case does not apply; this is maybe not surprising.
-  - What is maybe surprising (and cool) is that marginalizing is only very slightly worse than knowing the correct order
-- Discussion
-  - The context here, remember, is that you have a lot of spectra which are all a little different, have different "correct" continuum parametrizations
-  - One way to think about betterness is in terms of how much more SNR you need with conservative assumption than with marginalization to achieve same RMSE
-  - pretty consistent across SNR, TKTK for 0th order, TKTK for 1st order, and TKTK (less than 1 because you actually do slightly better) for 2nd order.
-  - e.g. if [0, 1, 2] order polynomial family is adequate and you have equal amounts of each, marginalizing means you can get away with average SNR that's X times lower than making a conservative assumption; don't even get me started on if you were fitting and being conservative!
-  - Assuming SNR propto sqrt(t), that's X TKTK times more observing time to get the same result; not a trivial amount.
+| Next, we consider a problem where there is still a single well-resolved and unsaturated absorption line but where we only know that the continuum belongs to a \emph{family} of possible continuum parametrizations.
+| As in the previous section, we consider three possible continuum parametrizations: 0th, 1st, and 2nd order polynomials.
+| The approach, simulating spectra, measuring $\log_{10}N$ for each simulated spectrum, and computing the RMSE of $\log_{10}N$, is also the same.
+| We consider a different range in SNR: 10 to 50.
 
+| We measure the column density in three ways: (1) supply the correct parametrization and marginalize over its parameters; (2) assume the most complicated of the three parametrizations and marginalize over the parameters; (3) marginalize over parametrizations as well as parameters.
+| Method (1) is meant to establish a minimum RMSE for this test case.
+| Method (2) is a conservative assumption that can be made when the family of possible parametrizations is nested---a polynomial of order $n$ with leading coefficient 0 is a polynomial of order $n-1$.
+| Method (3) is a way to account for the different possible parametrizations without picking one a priori.
+| The likelihood function that we maximize when using method (3) is the weighted sum of the continuum-marginalized likelihoods of the three possible models.
+| The weights are the prior probabilities of each of the models; we assume all three are equally likely.
+
+| The RMSEs of the three methods are shown in Figure \ref{fig:order-unknown-comparison}.
+| For all three input orders, the parametrization-marginalized solution is only slightly worse than the reference, known-parametrization solution.
+| Its RMSE is, on average, TKTK, TKTK, and TKTK higher than the reference solution for the 0th, 1st, and 2nd order spectra.
+| For spectra generated with the simpler continuum parametrizations, the RMSE of the conservative method is higher than the RMSE of parametrization-marginalized solution by TKTK and TKTK.
+| When the order is 2, the conservative solution is the same as the reference solution.
+| All of these ratios are approximately constant across this entire SNR range.
+N.B. IT MIGHT BE A GOOD IDEA TO RE-DO THIS FOR A BIGGER SNR RANGE TO SHOW THAT IT DOESN'T GO AWAY
+
+| A different summary statistic is the ratio of the SNRs required by the different methods in order to achieve the same RMSE.
+| For 0th, 1st, and 2nd order true parametrizations, the conservative required SNR divided by the parametrization marginalized SNR is TKTK, TKTK, and TKTK.
+| Assuming the SNR of these spectra is proportional to the square root of integration time, parametrization marignalization requires TKTK and TKTK times less time for the 0th and 1st order cases and TKTK more time for the 2nd order case.
 
 \subsection{MCMC efficiency}
 \label{subsec:multiple-absorption-line-test-case}
