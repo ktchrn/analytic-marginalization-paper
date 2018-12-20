@@ -299,6 +299,11 @@ The uncertainties associated with these spectra are usually assumed to be diagon
 
 \section{Practical test cases}
 \label{sec:test-cases}
+- Is marginalization of continuum parameters, analytic or not, actually useful?
+- We consider two metrics by which it could be useful/not useful: how marginalizing over instead of fitting for continuum parameters affects the error with which absorption line parameters can be measured and how marginalizing analytically instead of numerically affects the speed of MCMC-based inference.
+- For the error metric, we consider two possible cases: a simpler one in which the continuum parametrization is known and more complicated one in which it is necessary to choose a continuum parametrization from a set of possibilites.
+
+
 To demonstrate the usefulness of analytic marginalization in practical applications, we consider three test problems.
 The first problem is to determine the column density of an absorption line when continuum parameters are not known but the form of the continuum is known.
 The second problem is to determine a column density when the continuum parametrization is not known but the family of possible parametrizations is known.
@@ -344,6 +349,7 @@ We find that continuum marginalization can increase the accuracy and precision o
 | \emph{Marginalization is always the most robust (in a statistical sense) method.}
 
 \subsection{Marginalization over parametrizations}
+\label{sec:marginalization-over-parametrizations}
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/order_strategies_labeled.pdf}
   \caption{Different ways of dealing with an unknown continuum parametrization}
@@ -352,22 +358,27 @@ We find that continuum marginalization can increase the accuracy and precision o
 | Next, we consider a problem where there is still a single well-resolved and unsaturated absorption line but where we only know that the continuum belongs to a \emph{family} of possible continuum parametrizations.
 | As in the previous section, we consider three possible continuum parametrizations: 0th, 1st, and 2nd order polynomials.
 | The approach, simulating spectra, measuring $\log_{10}N$ for each simulated spectrum, and computing the RMSE of $\log_{10}N$, is also the same.
-| We consider a different range in SNR: 10 to 50.
+| We consider a different range in SNR: 10 to 100.
 
-| We measure the column density in three ways: (1) supply the correct parametrization and marginalize over its parameters; (2) assume the most complicated of the three parametrizations and marginalize over the parameters; (3) marginalize over parametrizations as well as parameters.
+| We measure the column density in three ways: (1) supply the correct parametrization and marginalize over its parameters; (2) assume the most complicated of the three parametrizations and marginalize over the parameters; (3) repeatedly use the likelihood ratio test to choose a parametrization and fit for parameters; (4) marginalize over parametrizations as well as parameters.
 | Method (1) is meant to establish a minimum RMSE for this test case.
 | Method (2) is a conservative assumption that can be made when the family of possible parametrizations is nested---a polynomial of order $n$ with leading coefficient 0 is a polynomial of order $n-1$.
-| Method (3) is a way to account for the different possible parametrizations without picking one a priori.
-| The likelihood function that we maximize when using method (3) is the weighted sum of the continuum-marginalized likelihoods of the three possible models.
+| Methods (3) and (4) are different ways of automatically accounting for the different possible parametrizations, in one case (3) by selecting a parametrization and in other (4) essentially through model averaging.
+| The likelihood function that we maximize when using method (4) is the weighted sum of the continuum-marginalized likelihoods of the three possible models.
 | The weights are the prior probabilities of each of the models; we assume all three are equally likely.
 
-| The RMSEs of the three methods are shown in Figure \ref{fig:order-unknown-comparison}.
+| The RMSEs of the four methods are shown in Figure \ref{fig:order-unknown-comparison}.
+| Methods (1), (2), and (4) are ``robust'' in the sense that their RMSE depends on SNR in a consistent way.
+| Method (3), parametrization selection, is not robust in this sense.
+| At an SNR of 10 for spectra with 1st order continua and at all of the considered SNRs for spectra with 2nd order continua, parametrization selection fails.
+| In all of the other cases, parametrization selection and marginalization are indistinguishable.
+| Given these two facts, marginalization is clearly the more effective of the two multi-parametrization methods.
+
 | For all three input orders, the parametrization-marginalized solution is only slightly worse than the reference, known-parametrization solution.
 | Its RMSE is, on average, TKTK, TKTK, and TKTK higher than the reference solution for the 0th, 1st, and 2nd order spectra.
 | For spectra generated with the simpler continuum parametrizations, the RMSE of the conservative method is higher than the RMSE of parametrization-marginalized solution by TKTK and TKTK.
 | When the order is 2, the conservative solution is the same as the reference solution.
 | All of these ratios are approximately constant across this entire SNR range.
-N.B. IT MIGHT BE A GOOD IDEA TO RE-DO THIS FOR A BIGGER SNR RANGE TO SHOW THAT IT DOESN'T GO AWAY
 
 | A different summary statistic is the ratio of the SNRs required by the different methods in order to achieve the same RMSE.
 | For 0th, 1st, and 2nd order true parametrizations, the conservative required SNR divided by the parametrization marginalized SNR is TKTK, TKTK, and TKTK.
