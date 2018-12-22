@@ -299,24 +299,23 @@ The uncertainties associated with these spectra are usually assumed to be diagon
 
 \section{Practical test cases}
 \label{sec:test-cases}
-- Is marginalization of continuum parameters, analytic or not, actually useful?
-- We consider two metrics by which it could be useful/not useful: how marginalizing over instead of fitting for continuum parameters affects the error with which absorption line parameters can be measured and how marginalizing analytically instead of numerically affects the speed of MCMC-based inference.
-- For the error metric, we consider two possible cases: a simpler one in which the continuum parametrization is known and more complicated one in which it is necessary to choose a continuum parametrization from a set of possibilites.
+| Is marginalization of continuum parameters, analytic or not, actually useful?
+| We consider two metrics by which it could be useful/not useful: how marginalizing over instead of fitting for continuum parameters affects the error with which absorption line parameters can be measured and how marginalizing analytically instead of numerically affects the speed of MCMC-based inference.
 
+| For the error metric, we consider two possible cases: a simpler one in which the continuum parametrization is known and a more complicated one in which it is necessary to choose a continuum parametrization from a set of possibilites.
+| Our suggested method is (analytically) marginalizing over continuum parameters, in the first case, and marginalizing over continuum parameters \emph{and parametrizations}, in the second.
+| When the parametrization is known, all methods we consider are equal when SNR is sufficiently high but marginalization is consistently more robust at low SNR.
+| When the parametrization is not known, marginalization over parametrizations has the lowest over-all error rate among the methods we consider.
+| Its error rate is close to the error rate of parameter marginalization with a known parametrization.
 
-To demonstrate the usefulness of analytic marginalization in practical applications, we consider three test problems.
-The first problem is to determine the column density of an absorption line when continuum parameters are not known but the form of the continuum is known.
-The second problem is to determine a column density when the continuum parametrization is not known but the family of possible parametrizations is known.
-In these problems, we compare the accuracy and precision that can be attained using different fitting strategies.
-The third problem is to generate samples from a posterior probability distribution over absorption line parameters when the continuum parametrization is known.
-In this problem, we compare the computational efficiency of sampling with and without analytic marginalization over continuum parameters.
-
-We are considering two types of use cases in these comparisons.
-The first two problems are relevant for spectroscopic surveys with too many spectra to analyze manually.
-The comparison is between different ways of automatically treating the continuum.
-The third problem is relevant for careful Bayesian analysis of a small number of spectra.
-In particular, we are considering a case where absorption lines are spread over different spectra or segments of a spectrum.
-We find that continuum marginalization can increase the accuracy and precision of automated spectral line analysis and that analytic continuum marginalization can, in some cases, help accelerate sampling.
+| We examine how two speed metrics change as the complexity of an inference problem increases: the number of iterations required for MCMC to converge and the number of independent samples generated per unit time.
+| The basic problem is analyzing a single line on a continuum whose parametrization is known.
+| To build up more complicated problems, we add more spectral segments each of which has its own continuum and contains another absorption line.
+| All of these absortion lines share some parameters.
+| This problem arises when analyzing multiple lines from a single species or lines from multiple species that can be assumed to come from a common absorber.
+| The convergence speedup from using analytic marginalization is dramatic, reaching a full order of magnitude difference in the number of required iterations with as few as three spectral segments.
+| Analytic marginalization produces slightly more independnet samples per unit time (by a factor of up to 3) when there are multiple spectral segments with high-order continua.
+| When there are few (less than 2) spectral segments whose continua are of low order, analytic marginalization is slightly slower or of comparable speed to numerical marginalization.
 
 \subsection{Marginalization over parameters}
 \begin{figure}
@@ -461,10 +460,20 @@ This advantage will not depend on the number of datapoints in each spectral regi
 
 - An assumption that is not necessary for analytic marginalization to be possible but is necessary for it to be useful is that the span of the absorption model includes the actually observed absorption.
 - In simpler terms, if you model a spectrum that contains two distinct lines with a single line, continuum marginalization will not save you.
-: Where do I put this comment? It's too short to be a separate paragraph and doesn't really fit into the other two paragraphs. Maybe the statement is: also need correct-enough model of the absorption itself? Hm.
+
+\subsection{Marginalization of parameters and parametrizations is a good idea when fitting absorption lines}
+| The test cases in Section \ref{sec:test-cases} showed that marginalization over continuum parameters and parametrizations is precise, accurate, and robust.
+| When applied to high SNR spectra, marginalization is at least as precise and accurate as all of other methods we considered.
+| When applied to low SNR spectra, marginalization continues to be effective while other methods catastrophically fail.
+
+| These broad results agree with a number of recent works that tout (HMM) the usefulness of (numerical) parameter marginalization in absorption line fitting \citep{2017ApJ...844..136E} (OTHERS).
+| The current work adds two things: combining continuum marginalization with absorption line parameter optimization and marginalizing over continuum parametrizations.
+| The first is necessary in order to include continuum marginalization in the analysis of large spectroscopic surveys, where MCMC is computationally impractical.
+| The second provides a robust and statistically justified solution to the problem of continuum model selection.
+- seems like I need something else here; maybe a point that if you're analyzing lines, it's easy to just throw this method in
+
 
 \subsection{Towards automated absorption line analysis}
-- The test cases in Section \ref{sec:test-cases} showed that continuum marginalization in general and analytic marginalization in particular has some advatanges over other approaches to accounting for continua.
 - Here, we explore how these advantages could be applied in two use cases: automated but well-motivated analysis of lots of simple spectra and thorough, reproducible analysis of single complicated spectra.
 - In both cases, interested in making it possible to do \emph{blind} and reproducible analysis.
 - When testing hypotheses, good to do as much of the analysis as possible before looking at results to discourage tinkering with analysis to produce more desirable results.
@@ -485,6 +494,8 @@ This advantage will not depend on the number of datapoints in each spectral regi
 - e.g. ``Reversible Jump MCMC,'' which I used in CITET DEPLETION PAPER.
 - Particularly important for when instrument resolution is not sufficient to resolve finest lines present; unresolved structure can hide column density.
 - Having analytic continuum marginalization \& continuum parametrization selection here means that probabilistic analysis of individual spectra/small samples really can be automated and blinded.
+
+: need to explain difference between my automatic continuum handling stuff and other peoples' automatic continuum handling stuff.
 
 \section{Conclusion}
 \label{sec:conclusion}
