@@ -44,8 +44,8 @@ Light from a distant source is attenuated by intervening interstellar matter (IS
 Often, only some of the multiplicative processes represented in an observable are relevant to a study.
 Attenuation by the ISM is a confounding variable for a study of a stellar populations based on a color magnitude diagram; the intrinsic spectral energy distribution of a star is a confounding variable in a study of the shape of the interstellar extinction curve.
 When using Bayesian inference to learn about the relevant processes, it is necessary to marginalize over the parameters describing the confounding processes.
-Because this marginalization can be time consuming if done using a numerical method such as Markov chain Monte Carlo (MCMC), it is advantageous to marginalize over nuisance parameters analytically whenever this is possible.
-We have created a package, \texttt{name}\footnote{available \emph{here}}, for analytically marginalizing over nuisance parameters that enter an observable multiplicatively and linearly (multiplicative linear nuisance parameters or MLNPs).
+Because this marginalization can be time consuming if done using a numerical method such as Markov chain Monte Carlo (MCMC), it is advantageous to marginalize over nuisance parameters analyticly whenever this is possible.
+We have created a package, \texttt{name}\footnote{available \emph{here}}, for analyticly marginalizing over nuisance parameters that enter an observable multiplicatively and linearly (multiplicative linear nuisance parameters or MLNPs).
 
 The problem this package is designed for is the analysis of absorption features in spectra.
 The process by which a spectrum containing absorption features is formed is the first example we gave in the paragraph above: a source emits light which is then attenuated by intervening matter.
@@ -299,23 +299,24 @@ The uncertainties associated with these spectra are usually assumed to be diagon
 
 \section{Practical test cases}
 \label{sec:test-cases}
-| Is marginalization of continuum parameters, analytic or not, actually useful?
-| We consider two metrics by which it could be useful/not useful: how marginalizing over instead of fitting for continuum parameters affects the error with which absorption line parameters can be measured and how marginalizing analytically instead of numerically affects the speed of MCMC-based inference.
+Is marginalization of continuum parameters, analytic or not, actually useful?
+We consider two metrics: how marginalizing over instead of fitting for continuum parameters affects the error with which absorption line parameters can be measured and how marginalizing analytically instead of numerically affects the speed of MCMC-based inference.
 
-| For the error metric, we consider two possible cases: a simpler one in which the continuum parametrization is known and a more complicated one in which it is necessary to choose a continuum parametrization from a set of possibilites.
-| Our suggested method is (analytically) marginalizing over continuum parameters, in the first case, and marginalizing over continuum parameters \emph{and parametrizations}, in the second.
-| When the parametrization is known, all methods we consider are equal when SNR is sufficiently high but marginalization is consistently more robust at low SNR.
-| When the parametrization is not known, marginalization over parametrizations has the lowest over-all error rate among the methods we consider.
-| Its error rate is close to the error rate of parameter marginalization with a known parametrization.
+For the error metric, we consider two possible cases: one in which the continuum parametrization is known and one in which it is necessary to choose a continuum parametrization from a set of possibilites.
+Our suggested method is (analytically) marginalizing over continuum parameters, in the first case, and marginalizing over continuum parameters \emph{and parametrizations}, in the second.
+When the parametrization is known, all methods we consider are equal when SNR is sufficiently high but marginalization is consistently more robust at low SNR.
+When the parametrization is not known, marginalization over parametrizations has the lowest over-all error rate among the methods we consider.
+Furthermore, its error rate is close to the error rate of parameter marginalization with a known parametrization.
 
-| We examine how two speed metrics change as the complexity of an inference problem increases: the number of iterations required for MCMC to converge and the number of independent samples generated per unit time.
-| The basic problem is analyzing a single line on a continuum whose parametrization is known.
-| To build up more complicated problems, we add more spectral segments each of which has its own continuum and contains another absorption line.
-| All of these absortion lines share some parameters.
-| This problem arises when analyzing multiple lines from a single species or lines from multiple species that can be assumed to come from a common absorber.
-| The convergence speedup from using analytic marginalization is dramatic, reaching a full order of magnitude difference in the number of required iterations with as few as three spectral segments.
-| Analytic marginalization produces slightly more independnet samples per unit time (by a factor of up to 3) when there are multiple spectral segments with high-order continua.
-| When there are few (less than 2) spectral segments whose continua are of low order, analytic marginalization is slightly slower or of comparable speed to numerical marginalization.
+We examine how two speed metrics change as the complexity of an inference problem increases: the number of iterations required for MCMC to converge and the number of independent samples generated per unit time.
+The basic problem is analyzing a single line on a continuum whose parametrization is known.
+To build up more complicated problems, we add more spectral segments each of which has its own continuum and contains another absorption line.
+All of these absortion lines share some parameters.
+Problems with this structure arise when analyzing multiple lines from a single species or from multiple species that can be assumed to share component structure.
+The convergence speedup from using analytic marginalization is dramatic, reaching a full order of magnitude difference in the number of required iterations with as few as three spectral segments.
+Analytic marginalization yields more independent samples per unit time when there are multiple spectral segments with high-order continua.
+For example, when there are six spectral segments with 3rd order continua, analytic marginalization is three time faster than numerical marginalization.
+When there are few spectral segments, analytic marginalization is slightly slower or of comparable speed to numerical marginalization.
 
 \subsection{Marginalization over parameters}
 \begin{figure}
@@ -324,28 +325,24 @@ The uncertainties associated with these spectra are usually assumed to be diagon
   \label{fig:order-known-comparison}
 \end{figure}
 
-| We consider the problem of measuring the column density of a single well-resolved, unsaturated absorption line on a continuum whose parametrization is known but whose parameters are not known.
-| This is the simplest problem that involves both absorption line and continuum parameters.
-| To do this, we generate spectra containing a fixed absorption line with different continuum parametrizations and signal-to-noise ratios (SNRs) and measure the column density from each of these spectra.
-| The summary statistic that we will use to indicate quality is the root mean square error (RMSE) of the base ten logarithm of the column density ($\log_{10}{\rm N}$).
-| We use the logarithm because physical constants (e.g. oscillator strengths) cancel in that RMSE calculation and because it is the logarithm of the column density that is usually reported.
+We consider the problem of measuring the column density of a single well-resolved, unsaturated absorption line superimposed on a continuum whose parametrization is known but whose parameters are not known.
+To do this, we generate spectra containing a fixed absorption line with different continuum parametrizations and signal-to-noise ratios (SNRs) and measure the column density from each of these spectra.
+The continuum parametrizations we use are polynomials of order 0, 1, and 2.
+We consider SNRs between 5 and 25.
+The summary statistic that we use to indicate quality is the root mean square error (RMSE) of the base ten logarithm of the column density ($\log_{10}{\rm N}$).
+To compute each RMSE, we generate 1000 spectra.
+We use the logarithm of the column density because physical constants (e.g. oscillator strengths) cancel in that RMSE calculation.
 
-| We measure the column density in four ways: (1) supply the correct continuum parameters and only fit for the absorption line parameters; (2) simultaneously fit for continuum and absorption line parameters; (3) analytically marginalize over continuum parameters and fit for absorption line parameters; and (4) use the absorption line parameters recovered using method (1) to define a line-free spectral region, fit continuum parameters just to this region, and with those continuum parameters fit for the absorption line parameters.
-| The first method is meant to set a lower limit on the RMSE of $\log_{10}{\rm N}$ as a function of SNR.
-| The second and third methods are two possible ways of automatically accounting for the continuum.
-| The fourth method is meant to approximate the actions of a human manually analyzing a spectrum.
-| We assume the human can correctly estimate the continuum by eye (but not translate that into a number), can perfectly estimate the best-fit absorption line profile by eye given this continuum, and using this profile can determine which part of the spectrum is not affected by the line.
+We measure the column density in four ways: (1) supply the correct continuum parameters and only fit for the absorption line parameters; (2) simultaneously fit for continuum and absorption line parameters; (3) analytically marginalize over continuum parameters and fit for absorption line parameters; and (4) use the absorption line parameters recovered using method (1) to define a line-free spectral region, fit continuum parameters just to this region, and with those continuum parameters fit for the absorption line parameters.
+The first method is meant to set a lower limit on the RMSE of $\log_{10}{\rm N}$ as a function of SNR.
+The second and third methods are two possible ways of automatically modeling the continuum.
+The fourth method is meant to approximate the actions of a human manually analyzing a spectrum.
+We assume the human can correctly estimate the continuum by eye, correctly estimate the best-fit absorption line profile by eye given this continuum, and finally use this profile to determine which part of the spectrum is not affected by the line.
 
-| The continuum parametrizations we use are polynomials of order 0, 1, and 2.
-| We consider SNRs between 5 and 25.
-| To compute each RMSE, we generate 1000 spectra.
-| All spectra contain the same absorption line but have different continuum parameters and noise realizations.
-
-| The RMSEs obtained using these different methods are shown in Figure \ref{fig:order-known-comparison}.
-| Above an SNR of 10-15, all methods where the correct continuum parameters are not known a priori are equal.
-| At and below that SNR range, marginalization has a lower RMSE than both simultaneous fitting and human-like analysis.
-| The advantage of marginalization over the other methods becomes greater as the continuum parametrization becomes more complex.
-| \emph{Marginalization is always the most robust (in a statistical sense) method.}
+The RMSEs obtained using these different methods are shown in Figure \ref{fig:order-known-comparison}.
+Above an SNR of 10-15, all methods where the correct continuum parameters are not known a priori are equal.
+At and below that SNR range, marginalization has a lower RMSE than both simultaneous fitting and the human-like analysis.
+The advantage of marginalization over the other methods becomes greater as the continuum parametrization becomes more complex.
 
 \subsection{Marginalization over parametrizations}
 \label{sec:marginalization-over-parametrizations}
@@ -354,33 +351,32 @@ The uncertainties associated with these spectra are usually assumed to be diagon
   \caption{Different ways of dealing with an unknown continuum parametrization}
   \label{fig:order-unknown-comparison}
 \end{figure}
-| Next, we consider a problem where there is still a single well-resolved and unsaturated absorption line but where we only know that the continuum belongs to a \emph{family} of possible continuum parametrizations.
-| As in the previous section, we consider three possible continuum parametrizations: 0th, 1st, and 2nd order polynomials.
-| The approach, simulating spectra, measuring $\log_{10}N$ for each simulated spectrum, and computing the RMSE of $\log_{10}N$, is also the same.
-| We consider a different range in SNR: 10 to 100.
+Next, we consider a problem where there is still a single well-resolved and unsaturated absorption line but where we only know that the continuum belongs to a \emph{family} of possible continuum parametrizations.
+As in the previous section, we consider three possible continuum parametrizations: 0th, 1st, and 2nd order polynomials.
+The approach, simulating spectra, measuring $\log_{10}N$ for each simulated spectrum, and computing the RMSE of $\log_{10}N$, is also the same.
+However, we consider a different range in SNR: 10 to 100.
 
-| We measure the column density in three ways: (1) supply the correct parametrization and marginalize over its parameters; (2) assume the most complicated of the three parametrizations and marginalize over the parameters; (3) repeatedly use the likelihood ratio test to choose a parametrization and fit for parameters; (4) marginalize over parametrizations as well as parameters.
-| Method (1) is meant to establish a minimum RMSE for this test case.
-| Method (2) is a conservative assumption that can be made when the family of possible parametrizations is nested---a polynomial of order $n$ with leading coefficient 0 is a polynomial of order $n-1$.
-| Methods (3) and (4) are different ways of automatically accounting for the different possible parametrizations, in one case (3) by selecting a parametrization and in other (4) essentially through model averaging.
-| The likelihood function that we maximize when using method (4) is the weighted sum of the continuum-marginalized likelihoods of the three possible models.
-| The weights are the prior probabilities of each of the models; we assume all three are equally likely.
+We measure the column density in three ways: (1) supply the correct parametrization and marginalize over its parameters; (2) assume the most complicated of the three parametrizations and marginalize over the parameters; (3) repeatedly use the likelihood ratio test to choose a parametrization and fit for parameters; (4) marginalize over parametrizations as well as parameters.
+Method (1) is meant to establish a minimum RMSE for this test case.
+Method (2) is a conservative assumption that can be made when the family of possible parametrizations is nested---a polynomial of order $n$ with leading coefficient 0 is a polynomial of order $n-1$.
+Methods (3) and (4) are different ways of automatically accounting for the different possible parametrizations, in one case (3) by selecting a parametrization and in other (4) by averaging over parametrizations.
+The likelihood function that we maximize when using method (4) is the weighted sum of the continuum-marginalized likelihoods of the three possible models.
+The weights are the prior probabilities of each of the models; we assume all three are equally likely.
 
-| The RMSEs of the four methods are shown in Figure \ref{fig:order-unknown-comparison}.
-| Methods (1), (2), and (4) are ``robust'' in the sense that their RMSE depends on SNR in a consistent way.
-| Method (3), parametrization selection, is not robust in this sense.
-| At an SNR of 10 for spectra with 1st order continua and at all of the considered SNRs for spectra with 2nd order continua, parametrization selection fails.
-| In all of the other cases, parametrization selection and marginalization are indistinguishable.
-| Given these two facts, marginalization is clearly the more effective of the two multi-parametrization methods.
+The RMSEs of the four methods are shown in Figure \ref{fig:order-unknown-comparison}.
+Methods (1), (2), and (4) are ``robust'' in the sense that their RMSE depends on SNR in a consistent way.
+Method (3), parametrization selection, is not robust in this sense.
+At an SNR of 10 for spectra with 1st order continua and at all of the considered SNRs for spectra with 2nd order continua, parametrization selection fails.
+In all of the other cases, parametrization selection and marginalization are indistinguishable.
 
-| For all three input orders, the parametrization-marginalized solution is only slightly worse than the reference, known-parametrization solution.
+For all three input orders, the parametrization-marginalized solution is only slightly worse than the reference, known-parametrization solution.
 | Its RMSE is, on average, TKTK, TKTK, and TKTK higher than the reference solution for the 0th, 1st, and 2nd order spectra.
 | For spectra generated with the simpler continuum parametrizations, the RMSE of the conservative method is higher than the RMSE of parametrization-marginalized solution by TKTK and TKTK.
-| When the order is 2, the conservative solution is the same as the reference solution.
-| All of these ratios are approximately constant across this entire SNR range.
+When the order is 2, the conservative solution is the same as the reference solution.
+All of these ratios are approximately constant across the entire considered SNR range.
 
-| A different summary statistic is the ratio of the SNRs required by the different methods in order to achieve the same RMSE.
-| For 0th, 1st, and 2nd order true parametrizations, the conservative required SNR divided by the parametrization marginalized SNR is TKTK, TKTK, and TKTK.
+An alternative summary statistic is the ratio of the SNRs required by the different methods in order to achieve the same RMSE.
+| For 0th, 1st, and 2nd order true parametrizations, the conservative-method SNR divided by the parametrization-marginalized SNR is TKTK, TKTK, and TKTK.
 | Assuming the SNR of these spectra is proportional to the square root of integration time, parametrization marignalization requires TKTK and TKTK times less time for the 0th and 1st order cases and TKTK more time for the 2nd order case.
 
 \subsection{MCMC efficiency}
@@ -416,14 +412,13 @@ The unmarginalized likelihood has $2 + N$ absorption line parameters and $N \tim
 We use the \texttt{emcee} implementation of the Goodman and Weare affine-invariant MCMC ensemble sampler to generate draws from the posterior corresponding to each of these likelihoods.
 We use the minimum number of `walkers,` which is twice the number of parameters.
 
-
 We use the Rubin-Gelman statistic $\hat{R}$ CITEP to assess convergence.
 We run ten MCMC instances for 12800 (per-walker) steps and compute the Rubin-Gelman statistic from the second half of sub-chains of length $2^p \times 100$ for $p=0, 1, \ldots, 7$.
 $\hat{R}$ is computed separately for each parameter.
 Following common usage, we consider convergence to be reached when the $\hat{R}$ of all parameters is less than $1.01$.
 We run this test for 1, 2, and 3 regions and absorption lines assuming a continuum of order 1, i.e. a straight line.
 The value of the $\hat{R}$ as a function of (total) number of steps is shown in Figure \ref{fig:convergence-comparison}.
-When there is a single region and line, the MCMC marginalization chain takes twice as many steps as the analytic marginalization chain to converge; when there are two regions, it takes eight times as many steps; when there are three, the MCMC marginalization  chain has not converged by the maximum chain length of 12800 while the analytic marginalization chain converges within 1600 steps.
+When there is a single region and line, the MCMC marginalization chain takes twice as many steps as the analytic marginalization chain to converge; when there are two regions, it takes eight times as many steps; when there are three, the MCMC marginalization chain has not converged by the maximum chain length of 12800 while the analytic marginalization chain converges within 1600 steps.
 
 We use the number of independent samples per unit time to assess efficiency.
 We run MCMC with the marginalized likelihood for 2000 burn-in steps and 8000 converged steps and record the average time per sample, $t_s$
@@ -444,58 +439,43 @@ This advantage will not depend on the number of datapoints in each spectral regi
 \section{Discussion}
 \label{sec:discussion}
 \subsection{Assumptions and consequences}
-- Assumptions made are Gaussianity, linearity, un-constrained, known covariance/uncertainty
-- Trivially does not apply to any absorption analysis problem; no background source produces negative flux.
-- Less tedious case is: observations in the low count rate, e.g. Poisson regime.
-- Poisson data break Gaussianity, not being constrained, and (if you're using sqrt(intensity) rather than a pre-assumed uncertainty) the covariance assumption.
-- First two mean you're doing an approximation; last one actually rules out using this particular analytic marginalization formula (though see work by Leistedt and Hogg, where just the covariance/uncertainty assumption is relaxed)
-- Importance of Gaussian vs. Poisson is just the usual "how good of an approximation is one distribution to the other" question
-- Basically, going to be in trouble with low-count X-ray or UV spectra; most optical and longer spectra are going to be fine.
+The explicit assumptions of our analytic marginalization method are that the continuum is a linear function, that the coefficients of this linear function are unconstrained, that uncertainties in the observations are (possibly multivariate) Gaussian, and that the covariance matrix of this Gaussian does not depend on the continuum.
+These assumptions obviously do not strictly hold for any dataset.
+For example, unconstrained coefficients never hold because no background source produces negative flux; this is largely irrelevant in practice.
+A more relevant example is data in the low photon count regime, which are better described by a Poisson distribution than a Gaussian distribution.
+This is particularly important when the uncertainties on the measurements are themselves highly uncertain and should be explicitly modeled.
+In that case, the uncertainties will depend on the Poisson intensity function, which explicitly depends on the continuum.
+Analytic marginalization of the kind described in this work should not be applied to low SNR X-ray or UV spectra.
 
-- Continuum model envisioned here is linear because it's just an effective estimate that ignores (generally non-linear) physics
-- this will be fine in some applications: the simple continua of quasars, some rapidly rotating O stars; any time that the (pseudo-)continuum changes on wavelength scales that are substantially longer than the wavelength scale of the lines
-- this is possibly longer than you think; P Cygni profiles from stellar winds are funky, but can be described reasonably well by splines
-- Need models that are informed by physics for other cases: optical or NIR spectra of cooler stars (e.g. Zasowski)
-- MLNPs may still be useful here given that models of these spectra are not perfect; small corrections may be necessary and particularly important for weak lines!
+The continuum models envisaged in this work will usually be effective descriptions rather than (often non-linear) physical descriptions.
+Most continua whose variation is over longer wavelength scales than the width of absorption lines in question can be approximated in this way.
+Examples of background sources whose continua can be accurately described in this way include quasars and (particularly rapidly rotating) hot stars.
+With flexible linear models such as splines, it is possible to describe somewhat complicated pseudo-continua such as stellar wind lines.
+For even more complicated pseudo-continua such as those of cool stars \citep[e.g.]{Zasowski:2015hi}, it is necessary to use a non-linear model.
+Marginalizable linear models can still be useful even in this case as a way of introducing small corrections for pseudo-continuum features that are not perfectly described by the non-linear model.
 
-- An assumption that is not necessary for analytic marginalization to be possible but is necessary for it to be useful is that the span of the absorption model includes the actually observed absorption.
-- In simpler terms, if you model a spectrum that contains two distinct lines with a single line, continuum marginalization will not save you.
+An assumption that is not necessary for analytic marginalization to be possible but is necessary for it to be useful is that the absorption model can correctly describe the actually present absorption.
+If a region of a spectrum contains two clearly distinct absorption lines but the model one allows for a single line, the presence of the un-modeled line will bias the continuum model.
+In short, improvements in continuum modeling cannot solve problems of model misspecification.
 
-\subsection{Marginalization of parameters and parametrizations is a good idea when fitting absorption lines}
-| The test cases in Section \ref{sec:test-cases} showed that marginalization over continuum parameters and parametrizations is precise, accurate, and robust.
-| When applied to high SNR spectra, marginalization is at least as precise and accurate as all of other methods we considered.
-| When applied to low SNR spectra, marginalization continues to be effective while other methods catastrophically fail.
+\subsection{Interpreting the test cases/the possibilities opened up by analytic marginalization}
+The test cases in Section \ref{sec:test-cases} showed that marginalization over continuum parameters and parametrizations is more precise, accurate, and robust than the alternatives.
+These results agree with a number of recent works that tout (HMM) the usefulness of (numerical) parameter marginalization in absorption line fitting \citep{2017ApJ...844..136E} (OTHERS).
+On its own, analytic marginalization is just a potentially more computationally efficient way of implementing an existing inference approach.
+It also allows two qualitatively new approaches: continuum model averaging and absorption parameter optimization with a continuum-marginalized likelihood function.
 
-| These broad results agree with a number of recent works that tout (HMM) the usefulness of (numerical) parameter marginalization in absorption line fitting \citep{2017ApJ...844..136E} (OTHERS).
-| The current work adds two things: combining continuum marginalization with absorption line parameter optimization and marginalizing over continuum parametrizations.
-| The first is necessary in order to include continuum marginalization in the analysis of large spectroscopic surveys, where MCMC is computationally impractical.
-| The second provides a robust and statistically justified solution to the problem of continuum model selection.
-- seems like I need something else here; maybe a point that if you're analyzing lines, it's easy to just throw this method in
+The test case in Section \ref{sec:marginalization-over-parametrizations} combines both of these approaches---optimizing an absorption parameter likelihood function where the parametrization and parameters of the continuum have been marginalized over.
+Analytic marginalization makes this possible in two ways: availability of closed form likelihoods and availability of gradients of closed form likelihoods.
+This is useful for dealing with large surveys.
+Analyses of absorption lines in tens of thousands of spectra \citep[e.g.]{2013ApJ...770..130Z,Zasowski:2015hi} cannot practically be done with MCMC.
+With analytic marginalization, it is possible to at least marginalize over continuum parameters.
+The results of the test cases suggest that this approach could mean a non-trivial improvement in the accuracy and precision of absorption line measurements.
 
-
-\subsection{Towards automated absorption line analysis}
-- Here, we explore how these advantages could be applied in two use cases: automated but well-motivated analysis of lots of simple spectra and thorough, reproducible analysis of single complicated spectra.
-- In both cases, interested in making it possible to do \emph{blind} and reproducible analysis.
-- When testing hypotheses, good to do as much of the analysis as possible before looking at results to discourage tinkering with analysis to produce more desirable results.
-- Reproducibility is also a good idea and is not directly possible if people are analyzing spectra manually and actively participating in continuum placement.
-
-- to extract ISM absorption information from e.g. the SDSS spectroscopic surveys, two things need to be automated: finding absorption lines and accounting for the continuum.
-- this has always been done with fitting rather than marginalization, and selection of continuum parametrizations has not been done.
-- as was shown in one of the test cases, choosing a conservative parametrization leaves SNR on the table.
-- analytic marginalization means that one can do optimization for line parameters and marginalization and even parametrization selection for continuum parameters.
-- useful for samples of objects with heterogenous spectra, e.g. GALAH which has some hot main sequence stars and some cool giants; automatically use a simple model for the hot stars and more complicated model for the cool stars.
-- automation of finding absorption lines is more complicated.
-- past cases of line analyses in surveys have used prior information, e.g. the existence of a galaxy along the line of sight (citation).
-- to make blind, statistically sound ISM studies from large spectroscopic surveys possible, still need a way of locating lines; this is tricky, since absorption is non-linear.
-
-- Needs of careful analysis of individual spectra are the same: automate location of absorption lines and continuum placement.
-- Since you have only one spectrum, can use more time consuming methods; do inference rather than optimization.
-- Way of probabilistically placing lines already exists! ``Trans-dimensional inference," where the dimensionality of the problem, e.g. the number of absorption lines, is a parameter to be inferred.
-- e.g. ``Reversible Jump MCMC,'' which I used in CITET DEPLETION PAPER.
-- Particularly important for when instrument resolution is not sufficient to resolve finest lines present; unresolved structure can hide column density.
-- Having analytic continuum marginalization \& continuum parametrization selection here means that probabilistic analysis of individual spectra/small samples really can be automated and blinded.
-
-: need to explain difference between my automatic continuum handling stuff and other peoples' automatic continuum handling stuff.
+In cases where MCMC is possible, combining continuum parametrization marginalization with a probabilistic specification of absorption component structure would allow absorption line analysis with human intervention only at the level of specifying priors and candidate continuum parametrizations.
+Component structure specification can be done in a trans-dimensional inference framework, in which the dimensionality of parameter space (in this case the number of sets of absorption line parameters) is itself a parameter of the model.
+This way of doing absorption line analysis has two potential advantages.
+Because it includes marginalization over many different nuisance parameters, it should be pretty robust (e.g. to unresolved saturated structure).
+Because it is essentially automatic, it allows blinding, which is good for hypothesis testing, and improves reproducibility. 
 
 \section{Conclusion}
 \label{sec:conclusion}
