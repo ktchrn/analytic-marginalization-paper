@@ -297,27 +297,33 @@ The approach, simulating spectra, measuring $\log_{10}N$ for each simulated spec
 However, we consider a different range in SNR: 10 to 100.
 
 We measure the column density in three ways: (1) supply the correct parametrization and marginalize over its parameters; (2) assume the most complicated of the three parametrizations and marginalize over the parameters; (3) repeatedly use the likelihood ratio test to choose a parametrization and fit for parameters; (4) marginalize over parametrizations as well as parameters.
-Method (1) is meant to establish a minimum RMSE for this test case.
+Method (1) is meant to establish a reference minimum RMSE for this test case.
 Method (2) is a conservative assumption that can be made when the family of possible parametrizations is nested---a polynomial of order $n$ with leading coefficient 0 is a polynomial of order $n-1$.
 Methods (3) and (4) are different ways of automatically accounting for the different possible parametrizations, in one case (3) by selecting a parametrization and in other (4) by averaging over parametrizations.
 The likelihood function that we maximize when using method (4) is the weighted sum of the continuum-marginalized likelihoods of the three possible models.
 The weights are the prior probabilities of each of the models; we assume all three are equally likely.
 
 The RMSEs of the four methods are shown in Figure \ref{fig:order-unknown-comparison}.
-Methods (1), (2), and (4) are ``robust'' in the sense that their RMSE depends on SNR in a consistent way.
-Method (3), parametrization selection, is not robust in this sense.
-At an SNR of 10 for spectra with 1st order continua and at all of the considered SNRs for spectra with 2nd order continua, parametrization selection fails.
-In all of the other cases, parametrization selection and marginalization are indistinguishable.
+Three ways of interpreting results. Robustness of solution to decrease in SNR and shortening of spectrum relative to number of parameters; RMSE obtainable by different methods at fixed SNR; SNR required by different methods to obtain the same SNR.
+ By robustness, we mean that RMSE has a consistent scaling with SNR and true continuum order.
+The estimator does not break down as SNR decreases below some breakdown point or as the number of continuum parameters increases.
+The reference, conservative, and parametrization-marginalization methods are robust for SNRs between 10 and 100.
+On the other hand, the parametrization-selection method is not robust; its RMSE blows up at an SNR of 10 for spectra with 1st order continua and at all SNRs considered for 2nd order continua.
+Parametrization selection should not be used for noisy spectra or spectra with a high ratio of parameters to data points.
 
-For all three input orders, the parametrization-marginalized solution is only slightly worse than the reference, known-parametrization solution.
-| Its RMSE is, on average, as good as that of the reference solution for spectra with 0th order continua and 4\% and 10\% greater than the reference solution for spectra with 1st, and 2nd order continua.
-| For spectra generated with the simpler continuum parametrizations, the RMSE of the conservative method is greater than the RMSE of parametrization-marginalized solution by 50\% and 40\%.
-When the order is 2, the conservative solution is the same as the reference solution.
-All of these ratios are approximately constant across the entire considered SNR range.
+In terms of RMSE, the parametrization-marginalized estimator is nearly as good as the reference estimator.
+The ratio RMSE$\textrm{m}$/RMSE$\textrm{r}$ of the parametrization-marginalized RMSE, RMSE$\textrm{m}$, to the reference RMSE, RMSE$\textrm{r}$, is 1, 1.04, and 1.1 for spectra with 0th, 1st, and 2nd order continua.
+For spectra with 0th or 1st order continua, the conservative estimator is significantly worse than the reference estimator.
+RMSE$\textrm{c}$/RMSE$\textrm{r}$ is 1.5, 1.5, and 1, respectively, where RMSE$\textrm{c}$ is the RMSE of the conservative estimator.
+These ratios are approximately constant across the entire SNR range considered.
+When analyzing an already acquired sample of observations in which a variety of continuum parametrizations are present, using the parametrization-marginalization estimator rather than the conservative estimator will, on average, yield higher accuracy and precision.
 
-An alternative summary statistic is the ratio of the SNRs required by the different methods in order to achieve the same RMSE.
-| For 0th, 1st, and 2nd order true parametrizations, the conservative-method SNR divided by the parametrization-marginalized SNR is 1.6, 1.5, and 0.9.
-| Assuming the SNR of these spectra is proportional to the square root of integration time, parametrization marignalization requires 0.8 as much time for the 0th and 1st order cases and 1.05 as much time for the 2nd order case.
+To get a sense of how much better the parametrization-marginalization estimator is than the conservative estimator, we can look at the SNR the two estimators require to achieve the same RMSE.
+For spectra with 0th, 1st, and 2nd continua, the ratio of the required SNRs SNR$\textrm{c}$/SNR$\textrm{m}$ is 1.6, 1.5, and 0.9.
+These ratios are consistent across the entire considered SNR range.
+Assuming that SNR is proportional to the square root of integration time, as is the case for Poisson noise-limited observations, these SNR ratios can be converted to required observing time ratios.
+Reaching the RMSE of the parametrization-marginalized estimator with the conservative estimator takes 1.26, 1.22, and 0.95 times as much observing time.
+When designing an observing strategy to meet a column density RMSE requirement, using the parametrization-marginalized estimator rather than the conservative estimator can save observing time given a fixed sample or increase the size of a sample given a fixed amount of observing time.
 
 \subsection{MCMC efficiency}
 \label{sec:multiple-absorption-line-test-case}
