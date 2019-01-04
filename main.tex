@@ -39,44 +39,47 @@ absorption line fitting; speeding it up; well-motivated ways of selecting parame
 
 \section{Introduction}
 \label{sec:introduction}
-The formation and measurement of many astronomical observables involves processes that combine multiplicatively rather than additively.
-Light from a distant source is attenuated by intervening interstellar matter (ISM) on its way to a detector; the output of the detector has to be converted to physically meaningful units by applying calibration factors.
-Often, only some of the multiplicative processes represented in an observable are relevant to a study.
-Attenuation by the ISM is a confounding variable for a study of a stellar populations based on a color magnitude diagram; the intrinsic spectral energy distribution of a star is a confounding variable in a study of the shape of the interstellar extinction curve.
-When using Bayesian inference to learn about the relevant processes, it is necessary to marginalize over the parameters describing the confounding processes.
-Because this marginalization can be time consuming if done using a numerical method such as Markov chain Monte Carlo (MCMC), it is advantageous to marginalize over nuisance parameters analyticly whenever this is possible.
-We have created a package, \texttt{name}\footnote{available \emph{here}}, for analyticly marginalizing over nuisance parameters that enter an observable multiplicatively and linearly (multiplicative linear nuisance parameters or MLNPs).
+Absorption lines contain information on the composition and properties of interstellar matter (ISM) and stellar atmospheres.
+To extract this information, it is necessary to separate the absorption lines and the intrinsic spectrum, typically referred to as the continuum, of the illuminating background source towards which the absorption is seen.
+The most common way of doing this separation has been manually finding regions in a spectrum that do not contain intervening absorption, fitting a function to these regions, and using this function to interpolate over regions that do contain absorption.
+Given the longevity and popularity of this approach, it is clear that it can produce acceptable results.
+It does, however, have two important weaknesses.
+The first is that every spectrum must be examined and interacted with by a human.
+This cannot practically be done for datasets containing thousands or even millions of spectra.
+The second is that it is difficult to determine the accuracy and precision of an estimator that involves a human.
+It is therefore not possible to determine whether there are obvious alternative estimators that would use the data more efficiently.
 
-The problem this package is designed for is the analysis of absorption features in spectra.
-The process by which a spectrum containing absorption features is formed is the first example we gave in the paragraph above: a source emits light which is then attenuated by intervening matter.
-The unattenuated light is customarily called \emph{the continuum}.
-To determine parameters describing the intervening matter, it is necessary to also determine parameters describing the continuum.
-While it is possible to pre-determine the continuum parameters using a portion of the spectrum that does not contain absorption features, we prefer to infer the absorption feature and continuum parameters simultaneously in order to explicitly include the uncertainty in continuum placement in estimates of the absorption feature parameters.
-This is also the approach used in the recently released absorption line analysis packages \texttt{Starfish}, \texttt{sick}, and \texttt{BayesVP} \citep{2015ApJ...812..128C,2016ApJS..223....8C,Liang:2018kq}.
-In these packages, absorption feature and continuum parameters are simultaneously marginalized over using MCMC.
-The authors of both packages point out that marginalizing over large numbers of continuum parameters in this way can lead to long convergence and autocorrelation times.
+An increasingly popular alternative approach is to infer absorption line and continuum parameters simultaneously.
+To improve the accuracy of the inferred absorption line parameters, it can be useful to marginalize over, rather than fit for, the continuum parameters.
+This has been done in packages meant for the analysis of absorption lines from both the ISM (\texttt{BayesVP}, \citealt{Liang:2018kq}) and stellar atmospheres (\texttt{Starfish}, \citealt{2015ApJ...812..128C}, and \texttt{sick}, \citealt{2016ApJS..223....8C}).
+In these packages, continuum parameter marginalization is done numerically, using MCMC.
+The authors of two of these packages point out that including large numbers of continuum parameters in MCMC sampling leads to long convergence and autocorrelation times.
 To keep the number of continuum parameters low, the packages either do not support (\texttt{BayesVP}) or advise against (\texttt{sick}) including continuum parameters when simultaneously analyzing multiple spectral segments.
 
-If the continuum is a linear function of the continuum parameters, the prior on the continuum parameters is (multivariate) normal or improper uniform, and the likelihood function of the observed spectrum given a model spectrum is multivariate normal, the necessary marginalization can be done analytically instead of numerically.
-The key is that when the absorption feature parameters are held fixed, the continuum basis elements, the transmittance spectrum, and, if necessary, the line spread function (LSF) can be combined into a single design matrix.
-The problem becomes equivalent to the simple linear nuisance parameter model discussed in an astronomical context in \citet{2017RNAAS...1a...7L}.
-The likelihood marginalized over the continuum parameters is available in e.g. \citet{Rasmussen:2006vz} for both the normal prior and the improper uniform prior cases.
+In these packages and in much of the absorption line analysis literature, the continuum is assumed to be a low order polynomial or spline.
+While these are non-linear functions of wavelength, they are linear functions of the polynomial or spline coefficients.
+This linearity means that if some additional assumptions hold, it is possible to marginalize over these coefficients analytically.
+Analytic marginalization has several advantages over numerical marginalization.
+First, it can speed up MCMC-based inference for absorption line parameters by reducing the dimensionality of the problem.
+Second, because the gradient of the continuum parameter-marginalized likelihood is also available in closed form, it is possible to efficiently optimize for absorption line parameters while keeping the robustness provided by marginalizing out nuisance parameters.
+The gradient can also be used in gradient-aware versions of MCMC such as Hamiltonian Monte Carlo \citep{DUANE1987216}.
+Finally, it makes marginalization over different possible continuum parametrizations computationally trivial---simply add continuum-marginalized likelihoods that assume different parametrizations together.
+Marginalization over parametrizations allows a greater degree of automation and systematization of absorption line inference.
 
-Analytic marginalization over multiplicative linear nuisance parameters has been used for other problems in astronomy.
-In one common use case, the parameter that is marginalized over is the amplitude of a signal whose shape is a non-linear function of some parameters of interest.
-One example of this use case is \citet{2017ApJ...837...20P}, where the parameters of interest are the period, eccentricity, phase, and argument of the radial velocity curve of a potential binary system and the nuisance parameters are the velocity amplitude of the curve and the barycenter velocity of the system.
-Another example can be found in \citet{Leistedt:2017in}, where the parameter of interest is the redshift of a galaxy  and the nuisance parameter is the galaxy's luminosity.
-This problem is not identical to the ones discussed in our paper and in \citet{2017ApJ...837...20P} because the luminosity multiplies both the data and the covariance matrix of the model residuals.
-The resulting marginal likelihood can not be expressed in terms of commonly used functions.
-The concept, however, is analogous and an accurate analytic approximation is available.
+The assumptions required by the method are: that the continuum can be expressed as a linear function (not necessarily a polynomial); that the prior on the parameters of this linear function are either improper uniform or Gaussian; and that residuals from the model are Gaussian.
+If these assumptions hold, then the posterior probability distribution function of the continuum parameters given a model for the absorption is a multivariate Gaussian.
+Marginalizing over this multivariate Gaussian just modifies the covariance matrix of the multivariate Gaussian distribution describing the residuals.
+When a set of absorption line parameters is specified, the continuum parameters can be treated as additive, rather than multiplicative, linear nuisance parameters.
+An explanation of marginalization of additive linear nuisance parameters in an astronomical context is given in \citet{2017RNAAS...1a...7L}.
+This approach to marginalizing over multiplicative linear nuisance parameters has been used, for example, to analyze sparsely sampled radial velocity measurements \citep{2017ApJ...837...20P}.
 
-When developing this package, we were specifically considering properties of the absortion spectrum likelihood function and useful ways in which it can be factored.
-The mathematical contribution of this work is an expression for the gradient of the logarithm of the marginal likelihood with respect to the problem's interesting non-linear parameters.
-This gradient can be used for optimization or in gradient-aware sampling methods such as Hamiltonian Monte Carlo \citep{DUANE1987216}.
-The other contribution is the package itself, which uses the structure of the likelihood function to efficiently calculate the marginal likelihood and gradient.
-We state the problem and give expressions for the marginal likelihood and the gradient of its logarithm in Section \ref{sec:assumptions-and-formalism}.
-| In Section \ref{sec:test-cases}, we show the usefulness of marginalization in general and analytic marignalization in particular in several practical test cases.
-We discuss strengths and weaknesses of our approach and package in Section \ref{sec:discussion} and conclude in Section \ref{sec:conclusion}.
+Models for absorption line spectra have features, such as the presence of a line spread function (LSF), which should be accounted for to more efficiently compute marginalized likelihoods and likelihood gradients.
+In this work, I derive expressions for the likelihood and its gradient that account for these features.
+This derivation is given in Section \ref{sec:assumptions-and-formalism}.
+I have created a package, \texttt{name}\footnote{available HERETKTK}, for evaluating these expressions.
+Appendix \ref{sec:package-and-demos} describes the package and gives some performance benchmarks.
+The performance of continuum parameter and parametrization marginalization is explored in Section \ref{sec:test-cases}.
+I discuss strengths and weaknesses of this method in Section \ref{sec:discussion} and conclude in Section \ref{sec:conclusion}.
 
 \section{Assumptions and formalism}
 \label{sec:assumptions-and-formalism}
@@ -171,12 +174,12 @@ If we instead assume the improper prior $p_u(\vx{c})$,
   \label{eqn:improper-prior-marginal}
   p_u(\vx{y} \vert \theta, \vx{L}, \vx{B}, \vx{K}) &=
   \int_{-\infty}^{+\infty} p(\vx{y} \vert \vx{c}, \theta, \vx{L}, \vx{B}, \vx{K}) p_u(\bf c) \, \dd \vx{c}\\
-  &= \left( \prod_{i=1}^{P+Q} Z_i^{-1} \right) (2\pi)^{-\frac{N - (P+Q)}{2}} \det(\vx{K})^{-\frac{1}{2}} \det(\vx{C}_u)^{-\frac{1}{2}}
+  &= \left( \prod_{i=1}^{P+Q} Z_i^{-1} \right) (2\pi)^{-\frac{M - (P+Q)}{2}} \det(\vx{K})^{-\frac{1}{2}} \det(\vx{C}_u)^{-\frac{1}{2}}
   \exp \left[ -\frac{1}{2}  \vx{r}^T \vx{K}^{-1} \left( \vx{r} - \vxhat{r}_u \right) \right].
 \end{align}
-These marginal likelihood $p_u$ will be proper whenever $\vx{C}_u$ is positive definite, which will be the case whenever $\vx{L}\vx{B}$ is full rank and $M \geq P+Q$.
-The marginal likelihood $p_g$ is always proper because $\vx{C}_g$ is always positive definite.
-$\vx{C}_g$ is always positive definite because $\blam^{-1}$ is always positive definite and $\vx{B}^T \vx{L}^T \vx{K}^{-1} \vx{L} \vx{B}$ is always at least positive semi-definite.
+The marginal likelihood $p_u$ will be proper whenever $\vx{C}_u$ is positive definite, which will be the case whenever $\vx{L}\vx{B}$ is full rank and $M \geq P+Q$.
+The marginal likelihood $p_n$ is always proper because $\vx{C}_n$ is always positive definite.
+$\vx{C}_n$ is always positive definite because $\blam^{-1}$ is always positive definite and $\vx{B}^T \vx{L}^T \vx{K}^{-1} \vx{L} \vx{B}$ is always at least positive semi-definite.
 
 \subsection{Gradients}
 We give expressions for the gradients of $\log(p_n)$ and $\log(p_u)$ with respect to $\vx{d}(\theta)$, $\bmu_b(\theta)$, and $\bmu_m(\theta)$.
@@ -207,7 +210,7 @@ $\vx{B'}$ is the sum of derivatives of $\vx{B}$ with respect to each element of 
 \end{bmatrix},
 \end{align}
 where $\vx{J}^{i, i}$ is a square matrix whose $(i,i)$-th entry is 1 and whose other entries are all 0.
-The first row of Equation \ref{eqn:grad-logp-wrt-dtheta} is the gradient of the argument of the exponential.
+The first row of Equation \ref{eqn:grad-logp-wrt-dtheta} is the gradient of the argument of the exponentials in Equations \ref{eqn:proper-prior-marginal} and \ref{eqn:improper-prior-marginal}.
 The second row is the gradient of $\log\left(\det \left( \vx{C}_{n/u}\right) \right)$.
 
 The gradient of $\log(p)$ with respect to $\bmu_m(\theta)$ is
@@ -225,23 +228,25 @@ and the gradient of $\log(p)$ with respect to $\bmu_b(\theta)$ is
 \section{Practical test cases}
 \label{sec:test-cases}
 Is marginalization of continuum parameters, analytic or not, actually useful?
-We consider two metrics: how marginalizing over instead of fitting for continuum parameters affects the error with which absorption line parameters can be measured and how marginalizing analytically instead of numerically affects the speed of MCMC-based inference.
+We consider two metrics: how marginalizing over, instead of fitting for, continuum parameters affects the error with which absorption line parameters can be measured and how marginalizing analytically instead of numerically affects the speed of MCMC-based inference.
 
 For the error metric, we consider two possible cases: one in which the continuum parametrization is known and one in which it is necessary to choose a continuum parametrization from a set of possibilites.
-Our suggested method is (analytically) marginalizing over continuum parameters, in the first case, and marginalizing over continuum parameters \emph{and parametrizations}, in the second.
+Our suggested method is (analytically) marginalizing over continuum parameters, in the first case, and marginalizing over continuum parameters and parametrizations, in the second.
 When the parametrization is known, all methods we consider are equal when SNR is sufficiently high but marginalization is consistently more robust at low SNR.
 When the parametrization is not known, marginalization over parametrizations has the lowest over-all error rate among the methods we consider.
 Furthermore, its error rate is close to the error rate of parameter marginalization with a known parametrization.
+These two cases are examined in Sections \ref{sec:marginalization-over-parameters} and \ref{sec:marginalization-over-parametrizations}.
 
 We examine how two speed metrics change as the complexity of an inference problem increases: the number of iterations required for MCMC to converge and the number of independent samples generated per unit time.
 The basic problem is analyzing a single line on a continuum whose parametrization is known.
 To build up more complicated problems, we add more spectral segments each of which has its own continuum and contains another absorption line.
-All of these absortion lines share some parameters.
+All of these absortion lines share widths and central velocities but have independent column densities.
 Problems with this structure arise when analyzing multiple lines from a single species or from multiple species that can be assumed to share component structure.
 The convergence speedup from using analytic marginalization is dramatic, reaching a full order of magnitude difference in the number of required iterations with as few as three spectral segments.
 Analytic marginalization yields more independent samples per unit time when there are multiple spectral segments with high-order continua.
 For example, when there are six spectral segments with 3rd order continua, analytic marginalization is three time faster than numerical marginalization.
 When there are few spectral segments, analytic marginalization is slightly slower or of comparable speed to numerical marginalization.
+These metrics are examined in Section \ref{sec:MCMC-efficiency}.
 
 \subsection{Marginalization over parameters}
 \label{sec:marginalization-over-parameters}
@@ -326,7 +331,7 @@ Reaching the RMSE of the parametrization-marginalized estimator with the conserv
 When designing an observing strategy to meet a column density RMSE requirement, using the parametrization-marginalized estimator rather than the conservative estimator can save observing time given a fixed sample or increase the size of a sample given a fixed amount of observing time.
 
 \subsection{MCMC efficiency}
-\label{sec:multiple-absorption-line-test-case}
+\label{sec:MCMC-efficiency}
 
 \begin{figure}
   \includegraphics{convergence.pdf}
@@ -336,7 +341,7 @@ When designing an observing strategy to meet a column density RMSE requirement, 
   Each line shows the evolution of this convergence diagnostic as a function of the number of MCMC steps taken (x-axis).
   Line styles indicates whether continuum parameters are marginalized over analytically (solid) or included in MCMC (dashed).
   Line colors and markers indicate the number of spectral regions, each of which has its own set of continuum parameters, are being analyzed simultaneously.
-  The Rubin-Gelman statistic and the problem setup are discussed in more detail in Section \ref{sec:multiple-absorption-line-test-case}.
+  The Rubin-Gelman statistic and the problem setup are discussed in more detail in Section \ref{sec:MCMC-efficiency}.
   }
   \label{fig:convergence-comparison}
 \end{figure}
@@ -345,12 +350,12 @@ When designing an observing strategy to meet a column density RMSE requirement, 
   \includegraphics{efficiency.pdf}
   \caption{
   Relative efficiency of MCMC with analytic and numerical continuum parameter marginalization for absorption line analysis problems with different complexities.
-  The relative efficiency is the ratio of the number of independent samples generated in the same amount of time by the two marginalization approaches.
+  The relative efficiency is the ratio of the number of independent samples, $n_{\rm ind}$, generated in the same amount of time by the two marginalization approaches; $n_{\rm ind}^(m)$ uses the analytically marginalized likelihood, $n_{\rm ind}^(u)$ uses the unmarginalized likelihood.
   The larger the relative efficiency, the more independent samples generated by analytic marginalization.
   Line colors and markers correspond to different continuum parametrizations: 1st order polynomial (black squares), 2nd order polynomial (blue circles), 3rd order polynomial (orange triangles).
   Line styles indicate whether a non-trivial line spread function (LSF) is used in the analysis.
   The relative efficiency is shown as a function of the number of spectral regions being analyzed simultaneously; each spectral region has its own set of continuum parameters.
-  The relative efficiency and the problem setup are discussed in more detail in Section \ref{sec:multiple-absorption-line-test-case}.
+  The relative efficiency and the problem setup are discussed in more detail in Section \ref{sec:MCMC-efficiency}.
   }
   \label{fig:efficiency-comparison}
 \end{figure}
@@ -416,9 +421,9 @@ With flexible linear models such as splines, it is possible to describe somewhat
 For even more complicated pseudo-continua such as those of cool stars \citep[e.g.]{Zasowski:2015hi}, it is necessary to use a non-linear model.
 Marginalizable linear models can still be useful even in this case as a way of introducing small corrections for pseudo-continuum features that are not perfectly described by the non-linear model.
 
-An assumption that is not necessary for analytic marginalization to be possible but is necessary for it to be useful is that the absorption model can correctly describe the actually present absorption.
-If a region of a spectrum contains two clearly distinct absorption lines but the model one allows for a single line, the presence of the un-modeled line will bias the continuum model.
-In short, improvements in continuum modeling cannot solve problems of model misspecification.
+For analytic marginalization to be useful, it must be possible for the absorption model to correctly describe the actually present absorption features.
+If a region of a spectrum contains two clearly distinct absorption lines but the model only allows for a single line, the presence of the un-modeled line will bias the continuum model.
+In short, improvements in continuum modeling cannot solve problems of absorption model misspecification.
 
 \subsection{Interpreting the test cases/the possibilities opened up by analytic marginalization}
 The test cases in Section \ref{sec:test-cases} showed that marginalization over continuum parameters and parametrizations is more precise, accurate, and robust than the alternatives.
