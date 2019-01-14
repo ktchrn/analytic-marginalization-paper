@@ -16,12 +16,12 @@
 
 \graphicspath{{./}{figures/}}
 
-\shorttitle{Multiplicative linear nuisance parameters}
+%\shorttitle{Multiplicative linear nuisance parameters}
 \shortauthors{Tchernyshyov}
 
 \begin{document}
 
-\title{Analytic marginalization of absorption line continua and other multiplicative linear nuisance parameters}
+\title{Analytic marginalization of absorption line continua}
 
 \author[0000-0003-0789-9939]{Kirill Tchernyshyov}
 \affiliation{Department of Physics and Astronomy, Johns Hopkins University, 3400 N. Charles Street, Baltimore, MD 21218, USA}
@@ -51,70 +51,70 @@ Parameter and parametrization marginalization are consistently better or as good
 \section{Introduction}
 \label{sec:introduction}
 Absorption lines contain information on the composition and properties of interstellar matter (ISM) and stellar atmospheres.
-To extract this information, it is necessary to separate the absorption lines and the intrinsic spectrum, typically referred to as the continuum, of the illuminating background source towards which the absorption is seen.
-The most common way of doing this separation has been manually finding regions in a spectrum that do not contain intervening absorption, fitting a function to these regions, and using this function to interpolate over regions that do contain absorption.
+To extract this information, it is necessary to decompose the spectrum into absorption features and the intrinsic spectrum, typically referred to as the continuum, of the illuminating background source towards which the absorption is seen.
+The most common way of doing this separation has been manually finding regions in a spectrum that do not contain absorption features, fitting a function to these regions, and using this function to interpolate over the absorption features.
 Given the longevity and popularity of this approach, it is clear that it can produce acceptable results.
 It does, however, have two important weaknesses.
 The first is that every spectrum must be examined and interacted with by a human.
-This cannot practically be done for datasets containing thousands or even millions of spectra.
-The second is that it is difficult to determine the accuracy and precision of an estimator that involves a human.
-It is therefore not possible to determine whether there are obvious alternative estimators that would use the data more efficiently.
+This cannot efficiently be done for datasets containing thousands or even millions of spectra.
+The second is that it is unlikely that the absorption parameter estimator this procedure implicitly defines uses data efficiently.
+There is variance between analyses done by different humans as well as between analyses done by the same human at different times.
+If there is a subset of analysts whose estimates are the most accurate and precise, then the estimates of the rest are using the available data inefficiently.
 
-An increasingly popular alternative approach is to infer absorption line and continuum parameters simultaneously.
+An alternative approach is to infer absorption line and continuum parameters simultaneously.
 To improve the accuracy of the inferred absorption line parameters, it can be useful to marginalize over, rather than fit for, the continuum parameters.
 This has been done in packages meant for the analysis of absorption lines from both the ISM (\texttt{BayesVP}, \citealt{Liang:2018kq}) and stellar atmospheres (\texttt{Starfish}, \citealt{2015ApJ...812..128C}, and \texttt{sick}, \citealt{2016ApJS..223....8C}).
-In these packages, continuum parameter marginalization is done numerically, using MCMC.
-The authors of two of these packages point out that including large numbers of continuum parameters in MCMC sampling leads to long convergence and autocorrelation times.
-To keep the number of continuum parameters low, the packages either do not support (\texttt{BayesVP}) or advise against (\texttt{sick}) including continuum parameters when simultaneously analyzing multiple spectral segments.
+In these packages, continuum parameter marginalization is done numerically, using Markov chain Monte Carlo (MCMC).
+As the authors of two of these packages point out, including large numbers of continuum parameters in MCMC sampling leads to long convergence and autocorrelation times.
+To keep the number of continuum parameters low, these packages either do not support (\texttt{BayesVP}) or advise against (\texttt{sick}) including continuum parameters when simultaneously analyzing multiple spectral segments.
 
-In these packages and in much of the absorption line analysis literature, the continuum is assumed to be a low order polynomial or spline.
+Even when there are few continuum parameters, using MCMC to analyze a modern spectroscopic dataset consisting of thousands or even millions of spectra will be computationally demanding.
+Comparable analyses of photometric observations \citep{2015ApJ...810...25G,2016ApJ...826..104G} require months or years of computation time.
+A single spectrum contains orders of magnitude more values than a single set of photometric observations, which comes with a proportional increase in required computation time.
+
+In the packages discussed above and in much of the absorption line analysis literature, the continuum is assumed to be a low order polynomial or spline.
 While these are non-linear functions of wavelength, they are linear functions of the polynomial or spline coefficients.
 This linearity means that if some additional assumptions hold, it is possible to marginalize over these coefficients analytically.
+
 Analytic marginalization has several advantages over numerical marginalization.
 First, it can speed up MCMC-based inference for absorption line parameters by reducing the dimensionality of the problem.
-Second, because the gradient of the continuum parameter-marginalized likelihood is also available in closed form, it is possible to efficiently optimize for absorption line parameters while keeping the robustness provided by marginalizing out nuisance parameters.
-The gradient can also be used in gradient-aware versions of MCMC such as Hamiltonian Monte Carlo \citep{DUANE1987216}.
-Finally, it makes marginalization over different possible continuum parametrizations computationally trivial---simply add continuum-marginalized likelihoods that assume different parametrizations together.
+Second, the ability to evaluate the continuum parameter-marginalized likelihood function and its gradient makes it possible to do optimization, rather than sampling, for the absorption parameters while still keeping the robustness provided by marginalizing over continuum parameters.
+Finally, it makes marginalization over different possible continuum parametrizations computationally trivial---simply sum together continuum-marginalized likelihoods that assume different parametrizations.
 Marginalization over parametrizations allows a greater degree of automation and systematization of absorption line inference.
 
-The assumptions required by the method are: that the continuum can be expressed as a linear function (not necessarily a polynomial); that the prior on the parameters of this linear function are either improper uniform or Gaussian; and that residuals from the model are Gaussian.
-If these assumptions hold, then the posterior probability distribution function of the continuum parameters given a model for the absorption is a multivariate Gaussian.
-Marginalizing over this multivariate Gaussian just modifies the covariance matrix of the multivariate Gaussian distribution describing the residuals.
-When a set of absorption line parameters is specified, the continuum parameters can be treated as additive, rather than multiplicative, linear nuisance parameters.
+The assumptions required for this particular form of analytic marginalization are: that the continuum can be expressed as a linear function (which does not have to be a polynomial or spline); that the priors on the parameters of this linear function are either improper uniform or (multivariate) normal; and that residuals from the model are normally distributed.
+If these assumptions hold, then, given a model for the absorption, the posterior probability distribution function of the continuum parameters is itself a multivariate normal distribution.
+The result of marginalizing over the continuum parameters is simply an update to the covariance matrix of the model residuals.
+Conceptually, when a set of absorption line parameters is specified, the continuum parameters can be treated as additive, rather than multiplicative, linear nuisance parameters.
 An explanation of marginalization of additive linear nuisance parameters in an astronomical context is given in \citet{2017RNAAS...1a...7L}.
-This approach to marginalizing over multiplicative linear nuisance parameters has been used, for example, to analyze sparsely sampled radial velocity measurements \citep{2017ApJ...837...20P}.
+This approach to marginalizing over multiplicative linear nuisance parameters has already been used for several astronomical applications, for example for analyzing sparsely sampled radial velocity measurements \citep{2017ApJ...837...20P}.
 
 Models for absorption line spectra have features, such as the presence of a line spread function (LSF), which should be accounted for to more efficiently compute marginalized likelihoods and likelihood gradients.
 In this work, I derive expressions for the likelihood and its gradient that account for these features.
 This derivation is given in Section \ref{sec:assumptions-and-formalism}.
 I have created a package, \pkgname\footnote{available HERETKTK}, for evaluating these expressions.
-Appendix \ref{sec:package-and-demos} describes the package and gives some performance benchmarks.
+The package is described in Appendix \ref{sec:package-and-demos}.
 The performance of continuum parameter and parametrization marginalization is explored in Section \ref{sec:test-cases}.
 I discuss strengths and weaknesses of this method in Section \ref{sec:discussion} and conclude in Section \ref{sec:conclusion}.
 
 \section{Assumptions and formalism}
 \label{sec:assumptions-and-formalism}
-We assume the following model for a data vector $\vx{y}$ of length $M$:
+We assume the following model for a spectrum $\vx{y}$ given parameters $\theta$, $\vx{m}$, and $\vx{b}$:
 \begin{align}
 \label{eqn:basic-model-expanded}
 \vx{y}(\theta) &= \vx{L} \left( \vx{d}(\theta) \odot \left(\bmu_m(\theta) + \sum_{i=1}^P \vx{a}_{m,i}\, m_i  \right)
  +\bmu_b(\theta) + \sum_{i=1}^Q \vx{a}_{b,i} \,b_i \right) + \beps.
 \end{align}
-$\vx{L}$ is a linear mapping from $\mathrm{R}^N$ to $\mathrm{R}^M$.
-If $\vx{y}$ is a spectrum, $\vx{L}$ would be the instrumental line spread function.
-If we were fitting an absorption Voigt profile to this spectrum, $\vx{d}(\theta)$ would be the transmittance as a function of wavelength and $\theta$ would include the center, Doppler width, and total optical depth of the Voigt profile.
-The length of the vector $\vx{d}(\theta$) is $N$.
-The $m_i$ are the MLNPs, the $\vx{a}_{m,i}$ are the multiplicative basis elements, and $\bmu_m(\theta)$ is the mean of the multiplicative linear part of the model.
-These parameters and basis elements would be a model for the continuum emitted behind the absorbing material.
-The $b_i$ are additive linear nuisance parameters with basis $\vx{a}_{b,i}$ and $\bmu_b(\theta)$ is the mean of the additive linear part of the model.
-These parameters would be a model for any emission happening between the observer and the absorbing material, such as sky line emission.
-$\beps$ is the residual vector, which we assume to be normally distributed with mean zero and covariance matrix $\vx{K}$:
-\begin{align}
-  \label{eqn:residual-likelihood}
-  p(\beps) &= \mathcal{N}\left(\vx{0}, \vx{K} \right).
-\end{align}
+The background source emits a continuum, which is expressed as the sum of a possibly non-linear term, $\bmu_m(\theta)$, and a linear combination of basis elements $\vx{a}_{m,i}$ with coefficients $m_i$.
+Intervening matter absorbs part of this continuum with transmittance function $\vx{d}(\theta)$.
+The absorption happens independently at each wavelength.
+This is indicated by the elementwise product $\odot$ between the transmittance and continuum.
+Foregrounds, such as sky lines or instrumental artifacts are, like the continuum, expressed as the sum of a possibly non-linear term, $\bmu_b(\theta)$, and a linear combination of basis elements $\vx{a}_{b,i}$ with coefficients $b_i$.
+The resulting spectrum is convolved with an LSF $\vx{L}$ and observed.
+$\beps$ are the residuals between the observed $\vx{y}$ and the LSF-convolved spectrum and are assumed to be normally distributed with mean zero and covariance matrix $\vx{K}$.
 
-Collecting the multiplicative and additive basis elements $\vx{a}_{m,i}$ and $\vx{a}_{b,i}$ into matrices $\vx{A_m}$ and $\vx{A_b}$ and converting the vector $\vx{d}(\theta)$ into the diagonal matrix $\vx{D}_\theta \equiv \text{diag} \left( \vx{d}(\theta) \right) $,
+
+Collecting the multiplicative (continuum) and additive (foreground) basis elements $\vx{a}_{m,i}$ and $\vx{a}_{b,i}$ into matrices $\vx{A_m}$ and $\vx{A_b}$ and converting the transmittance vector $\vx{d}(\theta)$ into the diagonal matrix $\vx{D}_\theta \equiv \text{diag} \left( \vx{d}(\theta) \right) $,
 \begin{align}
   \label{eqn:basic-model-compact}
   \vx{y}  &= \vx{L} \left( \bmu_b(\theta) + \vx{A_b} \vx{b}
@@ -132,7 +132,7 @@ In the second expression, $\vx{B}$ and $\vx{c}$ are defined as:
   \vx{b}
   \end{bmatrix}.
 \end{align}
-We consider two priors for the nuisance parameter vector $\vx{c}$, a proper normal distribution with mean zero and covariance matrix $\blam$ and an improper uniform distribution:
+We consider two possible priors for the nuisance parameter vector $\vx{c}$, a multivariate normal distribution with mean zero and covariance matrix $\blam$ and an improper uniform distribution:
 \begin{align}
   \label{eqn:priors}
   p_n(\vx{c}) = \mathcal{N}\left({\bf 0}, \blam \right) \text{ (normal) \hspace{0.2in} and \hspace{0.2in}} p_u(\vx{c}) = \prod_{i=1}^{P+Q} Z_i^{-1} \text{ (uniform)},
@@ -141,7 +141,7 @@ where $Z_i$ can be any positive real number.
 
 \subsection{Conditional probability of the nuisance parameters}
 \label{sec:conditionals}
-For both priors, the conditional distribution of $\vx{c}$ at fixed $\theta$ is proportional to a normal distribution.
+For both priors, the conditional distribution of $\vx{c}$ at fixed $\theta$ is proportional to a multivariate normal distribution.
 The mean $\vxhat{c}$ of this normal distribution is
 \begin{align}
   \label{eqn:conditional-c-mean}
@@ -154,7 +154,7 @@ where $\vx{r}$ is the vector of residuals
 \end{align}
 and $\vx{C}_{n/u}$ is
 \begin{align}
-  \vx{C}_n &= \blam^{-1} + \vx{B}^T \vx{L}^T \vx{K}^{-1} \vx{L} \vx{B}
+  \vx{C}_n &= \blam^{-1} + \vx{B}^T \vx{L}^T \vx{K}^{-1} \vx{L} \vx{B},
 \end{align}
 if the prior on $\vx{c}$ is normal and
 \begin{align}
