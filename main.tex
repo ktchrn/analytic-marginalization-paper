@@ -255,8 +255,8 @@ Given a parameter set $\theta$ and $T$ possible continuum bases and priors, the 
 }
 {\color{red}\bf
 where the weights $p_i$ are the prior probabilities of each model.
-This marginalization over models is not specific to the case described in this section.
-It cannot be applied if the prior over continuum parameters is assumed to be improper uniform (Eqn. \ref{eqn:priors}).
+This way of marginalizing over models is not specific to the likelihood function described in this section---it works for any set of proper marginalized likelihoods.
+It cannot be applied if the prior over any of the marginalized parameters is improper (e.g. the uniform prior defined in Equation \ref{eqn:priors}).
 }
 
 \section{Tests on Artificial Data}
@@ -291,33 +291,37 @@ It cannot be applied if the prior over continuum parameters is assumed to be imp
 \end{figure}
 
 {\color{red} \bf
-- in this section, we test how different continuum placement methods affect the recovery of absorption line parameters using artificial data.
-- to isolate the effect of continuum placement, the absorption line fitting problem we focus on is simple: a single resolved, unsaturated absorption line superimposed on a continuum that is either a first or a second degree polynomial (i.e. a line or a quadratic function).
-- the task is to fit the center, breadth, and total optical depth (equivalent to a column density) of the line.
-- the central question is: \emph{Are line parameters obtained while marginalizing over continuum parameters more accurate/precise than line parameters obtained while using other continuum placement strategies?}
+| In this section, we explore how different continuum placement methods affect the accuracy and precision with which column densities can be measured from absorption lines.
+| We do this by generating artificial spectra containing absorption lines with known input parameters and measuring line parameters using different continuum placement methods.
+| The central question of this section is: \emph{Are line parameters obtained while marginalizing over continuum parameters more accurate and precise than line parameters obtained while using other continuum placement strategies?}
+| The answer depends on whether or not a correct, informative prior over continuum parameters is used for marginalization.
+| If a somewhat informative prior is available, continuum marginalization produces results that are almost as precise and accurate as those obtained using the continuum actually used to generate the spectrum.
+| This is true even at the highest noise levels we consider.
+| If continuum marginalization is instead done with a diffuse, uninformative prior, the results are no better than simultaneously fitting for line and continuum parameters.
 
-- we vary the depth of the absorption line, the extent of the region surrounding the line, and the signal-to-noise ratio (SNR) of the artificial data.
-- the parameters we adopt are listed in Table \ref{tab:artificial-data:params} and example spectra with each of the total optical depths and extents are shown in Figure \ref{fig:artificial-data-eg}.
-- we generate 2000 spectra for each combination of total optical depth, SNR, spectrum extent, and continuum degree.
-- each spectrum has a different set of continuum parameters, which are generated from a normal distribution.
-
+| To isolate the effect of continuum placement, we keep the test problem simple: a single resolved, unsaturated absorption line superimposed on a continuum that is a first or second degree polynomial (i.e. a line or a quadratic function).
+| We vary the depth of the absorption line, the extent of the spectrum surrounding the line, and the signal-to-noise ratio (SNR) of the artificial data.
+| We generate 2000 spectra for each combination of total optical depth, SNR, spectrum extent, and continuum degree.
+| Each spectrum has a different set of continuum parameters, which are generated from a normal distribution.
+| The fixed input parameters we adopt are listed in Table \ref{tab:artificial-data:params}.
+| Example spectra with each of the total optical depths and extents are shown in Figure \ref{fig:artificial-data-eg}.
 }
 
 {\color{red} \bf
 \subsection{Continuum placement methods}
 \label{sec:artificial-tests:continuum-placement-methods}
-- we consider two broad categories of continuum placement methods: continuum fitting and continuum marginalization.
-- continuum fitting methods determine a single, optimal set of continuum parameters.
-- continuum marginalization methods consider all possible sets of continuum parameters, favoring those with higher prior probabilities.
-- within the two categories, we define methods based on different levels of prior knowledge about the continuum.
+| We consider two broad categories of continuum placement methods: ones in which continuum parameters are optimized for, or \emph{fitted continuum (FC) methods}, and ones in which continuum parameters are marginalized over, or \emph{marginalized continuum (MC) methods}.
+| We also consider a case where the true continuum is known (case TC) and only the line parameters need to be determined.
+| Since case TC's error in line parameters due to continuum placement error is, by definition, exactly zero, it provides an estimate of the error purely due to independent Gaussian noise.
+- to determine line parameters from a spectrum in case TC, we minimize\footnote{All optimization done using routines from the \texttt{SciPy} package's \texttt{optimize} module.} the discrepancy between the data and a model consisting of the correct continuum attenuated by an absorption line.
 
-- in the continuum fitting category, we provide three levels of prior knowledge: knowledge of the correct continuum parameters; knowledge of where the absorption line retuns to the continuum; and no knowledge besides that of the continuum parametrization to use (i.e. whether to use a first or second degree polynomial).
-- the first level provides a baseline for how well it is possible to recover absorption line parameters given a certain total optical depth and SNR.
-- the second level is meant to represent a perfectly competent analyst or algorithm selecting an absorption free region over which to fit a continuum.
-- in the first two cases, the continuum is assumed or fit, respectively, before fitting for the absorption line parameters.
-- the third level is a pessimistic scenario.
-- in the third case, the continuum and absorption line parameters are fit for simultaneously.
-- we will refer to these continuum placement methods by the abbreviations TC (True Continuum), TR-FC (True Region-Fit Continuum), and FC (Fit Continuum).
+| Within the two categories, we define methods based on different amounts of prior knowledge about the continuum.
+| In the continuum fitting category, we provide two levels of prior knowledge: knowledge of which part of the spectrum is effectively free of absorption and no additional knowledge besides that of the continuum parametrization to use (i.e. whether to use a first or second degree polynomial).
+- the first level represents a perfectly competent analyst of algorithm selecting a (true) absorption-free region to over which to fit a continuum.
+- the second level provides enough information to ensure that the correct solution could, in the limit of high SNR, be found.
+- to determine line parameters given a true absorption-free region, we fit a continuum to this region, then optimize for line parameters assuming the obtained continuum.
+- to determine line parameters just given the correct continuum parameterization, we simultaneously optimize for continuum and line parameters.
+| We will refer to these continuum placement methods by the abbreviations TR-FC (True Region-Fit Continuum), and FC (Fit Continuum).
 
 - we also provide three levels of prior knowledge in the continuum marginalization category: knowledge of the correct prior; knowledge of several possible priors, one of which is the correct prior; and no meaningful prior knowledge.
 - the correct prior is the distribution used to generate the continuum parameters.
@@ -328,6 +332,19 @@ It cannot be applied if the prior over continuum parameters is assumed to be imp
 - in the first and third cases, absorption line fitting is done using the logarithm of Equation \ref{eqn:proper-prior-marginal} as the objective function.
 - in the second case, the objective function is the logarithm of Equation \ref{eqn:parametrization-marginalization}.
 - we refer to these continuum placement methods by the abbreviations TCov-MC (True Covariance-Marginalized Continuum), MCov-MC (Marginalized Covariance-Marginalized Continuum), and DCov-MC (Diffuse Covariance-Marginalized Continuum).
+
+% I have not addressed the issue of selecting a continuum model. is this important enough to include?
+% first of all, not including it would be removing content. second of all, it seems like a contest that my methods would
+% win handily. if picking out the correct prior from a more diffuse and a more dense one is easy, then it should also be easy to pick out a line or a quadratic from a constant, a line, and a quadratic.
+% next question: is this a test that I do instead of or in addition to the ones I already have?
+% parametrization replicates method MCov-MC, and could easily be a replacement for it.
+% one issue is that a parametrization choosing method based on goodness of fit is going to do very poorly in the conditions of the current tests. it is obvious that you need more spectrum to choose a model.
+% furthermore, it may be worth going to greater per-pixel SNR values. I chose SNRs for my current tests so that I'm not looking at the boring regime where everyone does equally well all the time. going by my previous set of tests, this coalescence might not happen.
+% is the fact that coalescence didn't happen in my old tests reasonable? perhaps the issue really was that the length of the spectra was too short. the false positive rate _should_, in principle, at some point become close enough to zero to be irrelevant, no?
+% all this means is that you may need to run tests over a greater range of parameter space.
+% why would it be necessary to run the extra tests? to show that at some unspecified point, coalescence happens? if MCov-MC with polynomial degree does as well as TCov-MC down to the lowest SNRs I consider, that, in and of itself, is a big result. though it is true that being better out to arbitrary SNRs is pretty nice...
+
+
 }
 
 {\color{red} \bf
@@ -343,7 +360,6 @@ It cannot be applied if the prior over continuum parameters is assumed to be imp
   Each curve corresponds to a different signal-to-noise ratio (SNR).
   The SNR range and step size is shown above the top left panel (1a).
   The lowest SNR whose curve overlaps with the selected RMSE range is indicated by a number at the top of each panel.
-  %\footnote{We have chosen this visualization instead of the more typical one where the quantity being varied (in this case SNR) is on the $x$-axis, the outcome (in this case RMSE) is on the $y$-axis, and each curve corresponds to a different class (in this case method) because some of the methods would be indistinguishable over most of parameter space if shown in the more common style.}
   }
   \label{fig:outcomes-CO-1}
 \end{figure}
