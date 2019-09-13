@@ -384,19 +384,28 @@ It cannot be applied if the prior over any of the marginalized parameters is imp
   }
   \label{fig:outcomes-summary}
 \end{figure}
-- using these six objective functions and non-linear optimization routines from the \texttt{SciPy} package, we fit absorption profiles to each of the generated test spectra.
-- for each combination of input parameters---line center, line breadth, line total optical depth, SNR, spectrum extent, and continuum degree---we computed the root mean square error (RMSE) of the recovered line parameters.
-- because there is no appreciable difference in the RMSEs of line centers or breadths between the different continuum placement methods, we focus on the RMSE of the logarithm of the total optical depth.
-- we use the logarithm, rather than the linear value, because it removes the scale dependence of the results.
-- the total optical depth of an absorber is related to the absorber's column density by a scale factor that depends on the fundamental properties of the absorbing medium.
-- the RMSE of the logarithm of a total optical depth and the logarithm of the equivalent column density are equal, while the RMSEs of the linear quantities are not due.
+Using these six objective functions and non-linear optimization routines from the \texttt{SciPy} package, we fit absorption profiles to each of the generated test spectra.
+This yields one set of line parameters---center, breadth, and total optical depth---per test spectrum.
+Because it is the most challenging line parameter to correctly recover, we will focus on the total optical depth.
+To quantify quality of recovery, we compute the root mean square error (RMSE) of the logarithm of the total optical depth:
+\begin{equation}
+  \label{eqn:RMSE-def}
+  RMSE(\log\tau) = \sqrt{
+    \frac{1}{N} \sum_{i=1}^{N} \left( \log\hat{\tau}_i - \log\tau_{\rm true} \right)^2
+  }.
+\end{equation}
+$\hat{\tau}_i$ is the total optical depth value recovered from spectrum realization $i$ and $\tau_{\rm input}$ is the total optical depth actually used to generate the spectra.
+We use the RMSE of the logarithm instead of the linear value of the total optical depth because it is equal to the RMSE of a corresponding column density.
+The total optical depth of a line is equal to the product of the column density of the absorber and some physical constants.
+The difference of the logarithms of a pair of total optical depths is therefore equal to the difference of the logarithms of the corresponding column densities---the multiplicative constant factors become additive and cancel.
 
-- RMSEs of the logarithm of the total optical depth for each combination of input parameters and continuum placement method are shown in Figures \ref{fig:outcomes-CO-1} and \ref{fig:outcomes-CO-2}.
+The RMSEs for each combination of input parameter set and continuum placement method are shown in Figures \ref{fig:outcomes-CO-1} and \ref{fig:outcomes-CO-2}.
+- one way to summarize the performance of the different methods relative to each other is to ask in what fraction of the cases is the RMSE of one method less than or equal to the RMSE of a different method.
+- this summary is shown in Figure \ref{fig:outcomes-summary}.
+
 - a summary of the performance of the different methods relative to each other is shown in Figure \ref{fig:outcomes-summary}.
 - Continuum marginalization with a correct informative prior (TC-Cov) or correct informative prior over priors (MC-Cov) are the continuum placement methods with the best average performance across the test cases.
-- The log TOD RMSEs of these methods are
-- among the methods we consider where the true continuum is not given, continuum marginalization with an informative continuum parameter prior allows the most accurate/precise recovery of total optical depths from noisy or otherwise unfavorable data.
-- continuum marginalization with an uninformative prior is approximately equivalent to simultaneously fitting continuum and line parameters with no additional information.
+- Continuum marginalization with an uninformative prior is, on average, equivalent to or slightly worse than simultaneously fitting continuum and line parameters with no additional information.
 
 - below, we discuss aspects of these results in greater detail.
 \emph{The RMSE of case TC has no contribution from continuum placement uncertainty.}
@@ -418,12 +427,8 @@ It cannot be applied if the prior over any of the marginalized parameters is imp
 - what the prior for method TCov-MC provides is a (correct) distribution of plausible continuum parameter values.
 - furthermore, the fact that MCov-MC performs as well as TCov-MC means that knowing a distribution over plausible distributions of plausible continuum parameters can be sufficient.
 - the practical significance of these observations is that it is not possible do determine a true continuum but it is possible, in some cases, to determine accurate priors or accurate distributions over priors.
+- this point is expanded on in Section TKTK.
 
-- an obvious example is a survey of multiple background sources with similar or systematically varying continuum shapes.
-- another example is that if the continuum of the background varies in a consistent way as a function of wavelength, sections of continuum that are located away from absorption features of interest can be used to learn an informative prior.
-- using these sections to learn a prior is different from fitting a "global" continuum function over a large region of a spectrum because it allows information about continuum variation on short wavelength scales to be transferred between different parts of the spectrum.
-- in concrete terms, when fitting a spline to a large region of spectrum, each control point, by definition, affects a finite segment of the spline.
-- if we simultaneously also infer a prior over the coefficients of the control points, information can be shared between independent spline segments.
 
 \emph{Continuum marginalization with an uninformative prior performs similarly to simultaneously fitting for continuum and line parameters.}
 - at most input parameter values, the RMSEs of these two methods are indistinguishable.
@@ -525,6 +530,29 @@ Examples of sources with slowly varying continua include quasars and (particular
 With flexible linear models such as splines, it is even possible to describe more complicated pseudo-continua such as stellar wind lines.
 For even more complicated pseudo-continua such as those of cool stars \citep[e.g.]{Zasowski:2015hi}, it is necessary to use a non-linear model.
 Marginalizable linear models can still be useful even in this case as a way of introducing small corrections for pseudo-continuum features that are not perfectly described by the non-linear model.
+
+
+{\color{red}
+\subsection{Informative priors are valuable and realistically obtainable}
++ remind reader that I've shown that having an informative prior can be almost as good as knowing the true continuum
+
+- this is interesting because while getting access to the true continuum is not possible in an absolute sense, it is in many cases possible to get an informative prior.
+- two straightforward cases are coherent classes of background sources and \emph{stationarity} of continuum of a single background source.
+
+- certain kinds of background sources make up a coherent class with continua whose variation from source to source can be accurately described with a small number of free parameters.
+- one such class is Type TKTK quasars.
+- large samples of quasar spectra have been used to derive sets of basis functions that capture how the quasar continuum shape varies across the class EG TKTK.
+- This is, first of all, actually already a prior.
+- supplementing it with a prior on the amplitudes of coefficients or even the covariances of the coefficients adds further information.
+- an example where a quasar-derived prior was actually used in (numerical) marginalization over quasar continua for the purpose of absorption line analysis is given in \citet{2017ApJ...844..136E}.
+
+- other kinds of sources have continua that can be approximated by stationary stochastic processes.
+- stationarity here means that the way in which the continuum varies as a function of wavelength is consistent.
+- even though no piece of the continuum is necessarily the same as a different piece, each piece has similar statistical properties.
+- for a concrete example, consider fitting polynomials to different regions of a spectrum.
+- even though each region will have different polynomial coefficients, it is possible that coefficients have a typical amplitude.
+- this typical amplitude can be learned and then used when marginalizing over the continuum in a region that also contains absorption lines. 
+}
 
 \subsection{Applications of analytic marginalization}
 WHOLE SECTION REWRITE
