@@ -468,11 +468,11 @@ The RMSEs for each combination of input parameter set and continuum placement me
 
 \begin{figure}
   \centering
-  \includegraphics{annotated-SK-70115.pdf}
+  \includegraphics{annotated-SK-675.pdf}
   \caption{
-  A fit to absorption from ground and excited state C \small{I} absorption towards the star Sk-70 115 in the Large Magellanic Cloud.
+  A fit to absorption from ground and excited state {C \small{I}} absorption towards the star Sk-67 5 in the Large Magellanic Cloud.
   The data, continuum, and combined fit are shown in solid gray, dotted gray, and solid black lines.
-  The velocities shown on the $x$-axis are relative to the C \small{I} $\lambda$1329\AA{} (top panel) and $\lambda$1277\AA{} lines (bottom panel).
+  The velocities shown on the $x$-axis are relative to the {C \small{I}} $\lambda$1329\AA{} (top panel) and $\lambda$1277\AA{} lines (bottom panel).
   Line centers of the ground and first two excited states are indicated by datapoints of different shapes and colors.
   The number of excited state line centers is greater than the number of ground state line centers because there are multiple excited state transitions and a single ground state transition in each velocity range.
   }
@@ -480,32 +480,33 @@ The RMSEs for each combination of input parameter set and continuum placement me
 \end{figure}
 
 {\color{red} \bf
-- in this section, we use continuum marginalization to fit C \small{I} absorption arising in the Large Magellanic Cloud (LMC).
-- the data are spectra of the LMC stars Sk-67 5, Sk-68 73, and Sk-70 115 taken with the Space Telescope Imaging Spectrograph (STIS) \citep{1998PASP..110.1183W} on board the \emph{Hubble Space Telescope} (\emph{HST}) using the E140H grating ($R \sim 114,000$).
-- these data was originally analyzed in \citet{Welty:2016}, whose results we adopt as ground truth.
+In this section, we analyze absorption features in using continuum marginalization in a case where all continuum placement methods should agree.
+The absorption features are due to {C \small{I}} in the Large Magellanic Cloud (LMC).
+The data are spectra of the LMC stars Sk-67 5, Sk-68 73, and Sk-70 115 taken with the Space Telescope Imaging Spectrograph (STIS) \citep{1998PASP..110.1183W} on board the \emph{Hubble Space Telescope} (\emph{HST}) using the E140H grating ($R \sim 114,000$).
+We adopt the {C \small{I}} column density measurements of \citet{Welty:2016} as ground truth.
+\citet{Welty:2016} used fitting to manually selected line-free regions to determine the continuum.
 
-- we downloaded the pipeline-extracted one-dimensional spectra from the Mikulski Archive for Space Telescopes (MAST).
-- individual exposures within a single echelle order were shifted using nearest neighbor interpolation to the wavelength grid of one of the exposures and coadded.
-- we did not splice different echelle orders into a combined spectrum.
+We downloaded the default pipeline-extracted one-dimensional spectra from the Mikulski Archive for Space Telescopes (MAST).
+Individual exposures within a single echelle order were shifted using nearest neighbor interpolation to the wavelength grid of one of the exposures and coadded.
+We did not splice different echelle orders into a combined spectrum.
 
-- we fit Voigt profiles to the C \small{I}, C\small{I}$^*$, and C\small{I}$^**$ absorption in these spectra.
-- the model we used for the continuum was the sum of a first degree polynomial and a Gaussian process with a Matern-5/2 kernel.
-- tabulated LSFs were downloaded from the STIS website\footnote{\url{http://www.stsci.edu/hst/instrumentation/stis/performance/spectral-resolution}.}
-- spectral regions near the 1280.1\AA and 1328.8\AA C \small{I} lines were collected from the individual order spectra and fit simultaneously.
-- each velocity component had a single central velocity and breadth and a separate column density for the ground and excited states of C \small{I}.
-- optimizing over all profiles parameters while marginalizing over continuum parameters for a single object took between a few and 10 seconds per target.
-- the computation time is dominated by evaluating the continuum-marginalized likelihood and its gradient with respect to the Voigt profile parameters.
+To measure {C \small{I}} column densities, we fit Voigt profiles to the {C \small{I}}, C\small{I}$^*$, and C\small{I}$^**$ absorption in these spectra.
+The model we used for the continuum was the sum of a first degree polynomial and a Gaussian process with a Matern-5/2 kernel.
+The LSFs we used were downloaded from the \emph{HST}-STIS website\footnote{\url{http://www.stsci.edu/hst/instrumentation/stis/performance/spectral-resolution}.}
+Following the example of \citet{Welty:2016}, we analyzed only the {C \small{I}} multiplets near 1280.1\AA and 1328.8\AA.
+All absorption features for a target were fit simultaneously by maximizing the continuum-marginalized likelihood function of the data given the absorption model.
+Each velocity component had a single central velocity and breadth and a separate column density for the ground and two excited states of {C \small{I}}.
+Optimizing over the profile parameters while marginalizing over continuum parameters for a single object took between a few and 10 seconds per target.
+The computation time is dominated by evaluating the continuum-marginalized likelihood and its gradient with respect to the Voigt profile parameters.
 
-- the maximum likelihood absorption solution for target Sk-70 115 is shown in Figure \ref{fig:demonstration-fit}.
-- for all three targets, the total recovered C \small{I} column densities across all velocity components and excitation levels agree within the uncertainties with those found in \citet{Welty:2016}.
-- the agreement is expected, given that these are data with high spectral resolution and SNR and the absorption lines are narrow and clearly distinct from the continuum.
-- this is why this section is a "Demonstration" rather than a "Test."
+The maximum likelihood absorption solution for target Sk-67 5 is shown in Figure \ref{fig:demonstration-fit}.
+For all three targets, the total recovered {C \small{I}} column densities across all velocity components and excitation levels agree within the uncertainties with those found in \citet{Welty:2016}.
+The agreement is expected, given that these are data with high spectral resolution and SNR and the absorption lines are narrow and clearly distinct from the continuum---all valid continuum placement methods should yield the same result.
 
-- our reason for choosing a dataset where agreement is expected is that if the results were instead different from those obtained in the original study, there would be two plausible explanations: coadding vs. not coadding different orders and the continuum treatment.
-- preparing a dataset with low SNR for analysis often requires bespoke processing (e.g. \citealt{Wakker:2015} for a well-documented example).
-- as a result, line parameters obtained using the same fitting methods applied to a bespoke spectrum and a spectrum produced using pipeline defaults may differ.
-- to avoid this sort of unclear interpretation, we instead used a dataset where any disagreement would be clearly interpretable.
-
+We have chosen a dataset with these characteristics to limit the plausible reasons for any potential disagreement to the continuum placement method.
+Preparing a more challenging low SNR spectrum for analysis often requires bespoke, and proprietary, processing (see e.g. \citealt{Wakker:2015} for a well-documented example).
+As a result, there is no guarantee that there should be agreement between line parameters obtained using the same continuum placement and line fitting method applied to different reductions.
+To be able to compare results produced by continuum marginalization against the best efforts of other analysts, we therefore chose a dataset where there should be no such ambiguity.
 }
 
 
