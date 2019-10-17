@@ -68,7 +68,7 @@ Probablistic analyses of comparable numbers of photometric observations \citep[e
 A single spectrum contains orders of magnitude more data points than a single set of photometric observations, which comes with an at least linearly proportional increase in required computation time.
 
 In the packages discussed above and in much of the absorption line analysis literature, the continuum is assumed to be a low order polynomial or spline.
-{\color{red}\bf Polynomials and splines are non-linear functions of their $x$-variable, in this case wavelength, but linear functions of their coefficients.
+{\bf Polynomials and splines are non-linear functions of their $x$-variable, in this case wavelength, but linear functions of their coefficients.
 For example, a quadratic function, $f(x) = a x^2 + b x + c$, is non-linear in $x$ but linear in $a$, $b$, and $c$.
 The same is true of any function that can be expressed as a linear combination of fixed, possibly non-linear functions of $x$.}
 This linearity means that if some additional assumptions hold, it is possible to marginalize over these coefficients analytically.
@@ -79,9 +79,9 @@ Second, the ability to evaluate the continuum parameter-marginalized likelihood 
 Finally, it makes marginalization over different possible continuum parameterizations computationally trivial---simply sum together continuum-marginalized likelihoods that assume different parameterizations.
 Marginalization over parameterizations allows an even greater degree of automation and systematization of absorption line inference.
 
-{\color{red}\bf The assumptions required for this particular form of analytic marginalization are: that the continuum can be expressed as a function that is linear in its parameters (not necessarily a polynomial or spline); that the priors on the parameters of this function are either improper uniform or (multivariate) normal; and that residuals from the model are normally distributed.}
+{\bf The assumptions required for this particular form of analytic marginalization are: that the continuum can be expressed as a function that is linear in its parameters (not necessarily a polynomial or spline); that the priors on the parameters of this function are either improper uniform or (multivariate) normal; and that residuals from the model are normally distributed.}
 If these assumptions hold, then, given a model for the absorption, the posterior probability distribution function of the continuum parameters is itself a multivariate normal distribution.
-{\color{red}\bf The first assumption, that the continuum can be expressed as a function that is linear in its parameters, is fulfilled by commonly used functions such as polynomials and splines.
+{\bf The first assumption, that the continuum can be expressed as a function that is linear in its parameters, is fulfilled by commonly used functions such as polynomials and splines.
 One of the options given in the second assumption, that the priors on the parameters of this function are improper uniform, is made implicitly any time a continuum is fit without explicitly defining priors.
 The third assumption, that residuals from the model are normally distributed, is made whenever a spectrum is analyzed as a set of continuous quantities, such as fluxes, rather than as a set of discrete photon counts.\footnote{Assuming that a spectrum consists of e.g. fluxes rather than photon counts does not require assuming that residuals are normally distributed, but normality has been assumed in every such instance known to the author.}}
 
@@ -239,7 +239,7 @@ and the gradient of $\log(p)$ with respect to $\bmu_b(\theta)$ is
 \end{align}
 
 \subsection{Marginalizing over parameterizations}
-{\color{red}\bf
+{\bf
 If there are multiple possible models whose marginal likelihoods are available in closed form, it is trivial to marginalize over the choice of model.
 The models could, for example, be polynomials of different degrees.
 For marginalization over model choice to be well-defined and meaningful, the prior over each set of parameters must be proper.
@@ -253,7 +253,7 @@ Given a parameter set $\theta$ and $T$ possible continuum bases and priors, the 
   p(\vx{y} \vert \theta, \vx{L}, \vx{B}_1, \vx{B}_2, \ldots, \vx{B}_T, \vx{p}, \vx{K}, \blam_1, \blam_2, \ldots, \blam_T, \vx{p}) &= \sum_{i=1}^T p_i \times p(\vx{y} \vert \theta, \vx{L}, \vx{B}_i, \vx{K}, \blam_i),
 \end{align}
 }
-{\color{red}\bf
+{\bf
 where the weights $p_i$ are the prior probabilities of each model.
 This way of marginalizing over models is not specific to the likelihood function described in this section---it works for any set of proper marginalized likelihoods.
 It cannot be applied if the prior over any of the marginalized parameters is improper (e.g. the uniform prior defined in Equation \ref{eqn:priors}).
@@ -267,7 +267,7 @@ It cannot be applied if the prior over any of the marginalized parameters is imp
 \begin{tabular}{ll}
   {\bf Parameter} & {\bf Values} \\
   \hline
-  Continuum Order & 1, 2 \\
+  Continuum Degree & 1, 2 \\
   Total Optical Depth & 1.0, 2.0, 3.0 \\
   Velocity Extent & 35, 50, 65 km s$^{-1}$ \\
   Signal-to-Noise Ratio & 5, 6.66$\ldots$, $\ldots$, 20; $\Delta$SNR$=5/6=1.66\ldots$\\
@@ -276,9 +276,9 @@ It cannot be applied if the prior over any of the marginalized parameters is imp
 \end{tabular}
 \caption{
 {
-\bf \color{red}
+\bf
 Parameters that define an artificial test spectrum.
-Multiple realizations are generated for fixed values of the order of the continuum, total optical depth of the absorption feature, extent of the spectrum, and signal-to-noise ratio of the spectrum.
+Multiple realizations are generated for fixed values of the degree of the polynomial describing the continuum, total optical depth of the absorption feature, extent of the spectrum, and signal-to-noise ratio of the spectrum.
 Continuum coefficients and the noise vector are randomly generated for each realization.
 }
 }
@@ -289,10 +289,10 @@ Continuum coefficients and the noise vector are randomly generated for each real
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/annotated_example_data.pdf}
   \caption{
-  \bf \color{red}
+  \bf
   Examples of the artificial spectra that are used in the tests described in Section \ref{sec:test-cases}.
   Each panel shows a noise-free spectrum with absorption (solid black line), a noise-free continuum (dotted gray line), and a noisy realization of the spectrum with absorption (solid gray).
-  These artificial spectra have a signal-to-noise ratio of 20 and a continuum of degree 2.
+  These artificial spectra have a signal-to-noise ratio of 20 and a polynomial of degree 2 as the continuum.
   The panels are numbered in order of increasing total optical depth (TOD).
   The vertical lines and letters shown in each panel correspond to different spectrum extents, $\pm 35$ (a), $\pm 50$ (b), and $\pm 65$ km s$^{-1}$ (c).
   The numbers and letters used to indicate TODs and spectrum extents in this figure are consistent with the labeling used in Figures \ref{fig:outcomes-CO-1} and \ref{fig:outcomes-CO-2}.
@@ -300,72 +300,59 @@ Continuum coefficients and the noise vector are randomly generated for each real
   \label{fig:artificial-data-eg}
 \end{figure}
 
-{\color{red} \bf
-| In this section, we explore how different continuum placement methods affect the accuracy and precision with which column densities can be measured from absorption lines.
-| We do this by generating artificial spectra containing absorption lines with known input parameters and measuring line parameters using different continuum placement methods.
-| The central question of this section is: \emph{Are line parameters obtained while marginalizing over continuum parameters more accurate and precise than line parameters obtained while using other continuum placement strategies?}
-| The answer depends on whether or not a correct, informative prior over continuum parameters is used for marginalization.
-| If a somewhat informative prior is available, continuum marginalization produces results that are almost as precise and accurate as those obtained using the continuum actually used to generate the spectrum.
-| This is true even at the highest noise levels we consider.
-| If continuum marginalization is instead done with a diffuse, uninformative prior, the results are no better than simultaneously fitting for line and continuum parameters.
+{ \bf
+In this section, we explore how different continuum placement methods affect the accuracy and precision with which column densities can be measured from absorption lines.
+We do this by generating artificial spectra containing absorption lines with known input parameters and measuring line parameters using different continuum placement methods.
+The central question of this section is: \emph{Are line parameters obtained while marginalizing over continuum parameters more accurate and precise than line parameters obtained while using other continuum placement strategies?}
+The answer depends on whether or not a correct, informative prior over continuum parameters is used for marginalization.
+If an informative and accurate prior is available, continuum marginalization produces results that are almost as precise and accurate as those obtained using the continuum actually used to generate the spectrum.
+If continuum marginalization is instead done with a diffuse, uninformative prior, the results are no better than simultaneously fitting for line and continuum parameters.
 
-| To isolate the effect of continuum placement, we keep the test problem simple: a single resolved, unsaturated absorption line superimposed on a continuum that is a first or second degree polynomial (i.e. a line or a quadratic function).
-| We vary the depth of the absorption line, the extent of the spectrum surrounding the line, and the signal-to-noise ratio (SNR) of the artificial data.
-| We generate 2000 spectra for each combination of total optical depth, SNR, spectrum extent, and continuum degree.
-| Each spectrum has a different set of continuum parameters, which are generated from a normal distribution.
-| The fixed input parameters we adopt are listed in Table \ref{tab:artificial-data:params}.
-| Example spectra with each of the total optical depths and extents are shown in Figure \ref{fig:artificial-data-eg}.
+To isolate the effect of continuum placement, we keep the test problem simple: a single resolved and unsaturated absorption line superimposed on a continuum that is a first or second degree polynomial (i.e. a line or a quadratic function).
+We vary the depth of the absorption line, the extent of the spectrum surrounding the line, and the signal-to-noise ratio (SNR) of the artificial data.
+We generate 2000 spectra for each combination of total optical depth, SNR, spectrum extent, and continuum degree.
+Each spectrum has a different set of continuum parameters, which are generated from a normal distribution.
+The input parameters we adopt are listed in Table \ref{tab:artificial-data:params}.
+Example spectra generated using each of the considered total optical depths and extents are shown in Figure \ref{fig:artificial-data-eg}.
 }
 
-{\color{red} \bf
+{ \bf
 \subsection{Continuum placement methods}
 \label{sec:artificial-tests:continuum-placement-methods}
-| We consider two broad categories of continuum placement methods: ones in which continuum parameters are optimized for, or \emph{fitted continuum (FC) methods}, and ones in which continuum parameters are marginalized over, or \emph{marginalized continuum (MC) methods}.
-| We also consider a case where the true continuum is known (case TC) and only the line parameters need to be determined.
-| Since case TC's error in line parameters due to continuum placement error is, by definition, exactly zero, it provides an estimate of the error purely due to independent Gaussian noise.
-- to determine line parameters from a spectrum in case TC, we minimize\footnote{All optimization done using routines from the \texttt{SciPy} package's \texttt{optimize} module.} the discrepancy between the data and a model consisting of the correct continuum attenuated by an absorption line.
+We consider two categories of continuum placement method: ones in which continuum parameters are optimized for, or \emph{fitted continuum (FC) methods}, and ones in which continuum parameters are marginalized over, or \emph{marginalized continuum (MC) methods}.
+We also consider a case where the true continuum is known (case TC) and only the line parameters need to be determined.
+Since case TC's error in line parameters due to continuum placement error is, by definition, identically zero, case TC provides an estimate of the error purely due to independent normally-distributed noise.
+To determine line parameters from a spectrum in case TC, we minimize\footnote{All optimization done using routines from the \texttt{SciPy} package's \texttt{optimize} module.} the discrepancy between the data and a model consisting of the correct continuum attenuated by an absorption line.
 
-| Within the two categories, we define methods based on different amounts of prior knowledge about the continuum.
-| In the continuum fitting category, we provide two levels of prior knowledge: knowledge of which part of the spectrum is effectively free of absorption and no additional knowledge besides that of the continuum parametrization to use (i.e. whether to use a first or second degree polynomial).
-- the first level represents a perfectly competent analyst of algorithm selecting a (true) absorption-free region to over which to fit a continuum.
-- the second level provides enough information to ensure that the correct solution could, in the limit of high SNR, be found.
-- to determine line parameters given a true absorption-free region, we fit a continuum to this region, then optimize for line parameters assuming the obtained continuum.
-- to determine line parameters just given the correct continuum parameterization, we simultaneously optimize for continuum and line parameters.
-| We will refer to these continuum placement methods by the abbreviations TR-FC (True Region-Fit Continuum), and FC (Fit Continuum).
+Within the two categories, we define methods based on different amounts of prior knowledge about the continuum.
+In the continuum fitting category, we provide two levels of prior knowledge: knowledge of which part of the spectrum is effectively free of absorption and no additional knowledge besides which continuum parametrization to use (i.e. whether to use a first or second degree polynomial).
+The first level represents a perfectly competent analyst or algorithm selecting an absorption-free region over which to fit a continuum.
+The second level provides enough information to ensure that the correct solution is allowed by the model.
+To determine line parameters given a true absorption-free region, we fit a continuum to this region and then optimize for line parameters assuming the obtained continuum.
+To determine line parameters just given the correct continuum parameterization, we simultaneously optimize for continuum and line parameters.
+We will refer to these continuum placement methods by the abbreviations TR-FC (True Region-Fit Continuum), and FC (Fit Continuum).
 
-- we also provide three levels of prior knowledge in the continuum marginalization category: knowledge of the correct prior; knowledge of several possible priors, one of which is the correct prior; and no meaningful prior knowledge.
-- the correct prior is the distribution used to generate the continuum parameters.
-- this level of knowledge provides a baseline for how well it is possible to recover absorption line parameters while using continuum marginalization.
-- the second level is equivalent to having good but imperfect knowledge of likely continuum shapes.
-- the third level is a pessimistic scenario, as in the case of continuum fitting.
-- to ensure numerical stability, we still use a proper prior in this case, but one which is orders of magnitude broader than the correct one.
-- in the first and third cases, absorption line fitting is done using the logarithm of Equation \ref{eqn:proper-prior-marginal} as the objective function.
-- in the second case, the objective function is the logarithm of Equation \ref{eqn:parametrization-marginalization}.
-- we refer to these continuum placement methods by the abbreviations TCov-MC (True Covariance-Marginalized Continuum), MCov-MC (Marginalized Covariance-Marginalized Continuum), and DCov-MC (Diffuse Covariance-Marginalized Continuum).
-
-% I have not addressed the issue of selecting a continuum model. is this important enough to include?
-% first of all, not including it would be removing content. second of all, it seems like a contest that my methods would
-% win handily. if picking out the correct prior from a more diffuse and a more dense one is easy, then it should also be easy to pick out a line or a quadratic from a constant, a line, and a quadratic.
-% next question: is this a test that I do instead of or in addition to the ones I already have?
-% parametrization replicates method MCov-MC, and could easily be a replacement for it.
-% one issue is that a parametrization choosing method based on goodness of fit is going to do very poorly in the conditions of the current tests. it is obvious that you need more spectrum to choose a model.
-% furthermore, it may be worth going to greater per-pixel SNR values. I chose SNRs for my current tests so that I'm not looking at the boring regime where everyone does equally well all the time. going by my previous set of tests, this coalescence might not happen.
-% is the fact that coalescence didn't happen in my old tests reasonable? perhaps the issue really was that the length of the spectra was too short. the false positive rate _should_, in principle, at some point become close enough to zero to be irrelevant, no?
-% all this means is that you may need to run tests over a greater range of parameter space.
-% why would it be necessary to run the extra tests? to show that at some unspecified point, coalescence happens? if MCov-MC with polynomial degree does as well as TCov-MC down to the lowest SNRs I consider, that, in and of itself, is a big result. though it is true that being better out to arbitrary SNRs is pretty nice...
-
+We provide three levels of prior knowledge in the continuum marginalization category: knowledge of the correct prior; knowledge of several possible priors, one of which is the correct prior; and no meaningful prior knowledge.
+The correct prior is the distribution used to generate the continuum parameters.
+This level of knowledge provides a baseline for how well it is possible to recover absorption line parameters while using continuum marginalization.
+The second level can be thought of as having accurate knowledge of the range of plausible continuum shapes in several distinct classes of continuum, but not knowing in advance which class should be used for a given spectrum.
+The third level is a pessimistic scenario and is analogous to method FC.
+To ensure numerical stability, we still use a proper prior in this method, but one which is orders of magnitude broader than the correct one.
+In the first and third methods, absorption line fitting is done using the logarithm of Equation \ref{eqn:proper-prior-marginal} as the objective function.
+In the second method, the objective function is the logarithm of Equation \ref{eqn:parametrization-marginalization}.
+We refer to these continuum placement methods by the abbreviations TCov-MC (True Covariance-Marginalized Continuum), MCov-MC (Marginalized Covariance-Marginalized Continuum), and DCov-MC (Diffuse Covariance-Marginalized Continuum).
 
 }
 
-{\color{red} \bf
+{ \bf
 \subsection{Results and Discussion}
 
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/annotated_co1_RMSEs_vs_SNR.pdf}
   \caption{
-  \bf \color{red}
+  \bf
   How the root mean square error (RMSE) in the recovered log total optical depth (TOD) varies as a result of changing the true TOD of the absorption feature, the extent of the spectrum around the absorption feature, the signal-to-noise ratio (SNR) of the spectrum, and the continuum placement method.
-  In this figure, the continuum is of order one, i.e. is a line.
+  In this figure, the continuum is a polynomial of degree 1, i.e. a line.
   Each panel corresponds to a different combination of true TOD and spectrum extent.
   The TOD increases from bottom to top and is indexed by the underlined number in the corner of each panel; the indices 1, 2, and 3 correspond to the linear (i.e. non-log) TODs of 1.0, 2.0, and 4.0. The spectrum extent increases from left to right and is indexed by the underlined letter in the corner of each pixel; the indices a, b, and c correspond to extents of $\pm 35$, $\pm 50$, and $\pm 65$ km s$^{-1}$. These labels are consistent with those used in Figure \ref{fig:artificial-data-eg}, which shows examples of spectra at each combination of TOD and spectral extent.
   Within each panel, each line connecting a series of points corresponds to a different SNR; these are labeled at the top of panel 3a. The minimum SNR whose RMSEs are small enough to fall within the range shown is indicated at the top of each panel.
@@ -377,9 +364,9 @@ Continuum coefficients and the noise vector are randomly generated for each real
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/annotated_co2_RMSEs_vs_SNR.pdf}
   \caption{
-  \bf \color{red}
+  \bf
   How the root mean square error (RMSE) in the recovered log total optical depth (TOD) varies as a result of changing the true TOD of the absorption feature, the extent of the spectrum around the absorption feature, the signal-to-noise ratio (SNR) of the spectrum, and the continuum placement method.
-  In this figure, the continuum is of order two, i.e. is a quadratic function.
+  In this figure, the continuum is a polynomial of degree 2, i.e. is a quadratic function.
   Panel labels and axes are defined in the caption to Figure \ref{fig:outcomes-CO-1}.
   }
   \label{fig:outcomes-CO-2}
@@ -388,12 +375,12 @@ Continuum coefficients and the noise vector are randomly generated for each real
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/overall-performance.pdf}
   \caption{
-  \bf \color{red}
+  \bf
   A summarized comparison of the relative performance of different continuum placement methods.
   Each row and each column corresponds to a different method.
   The method names corresponding to the abbreviations are given in Section \ref{sec:artificial-tests:continuum-placement-methods}.
   The color of each pixel indicates the fraction of input parameter sets for which the log total optical depth (TOD) root mean square error (RMSE) of the method on the $x$-axis is less than or within 0.01 dex of the log TOD RMSE of the method on the $y$-axis.
-  This comparison quantity is an average across the different continuum orders, true TODs, and spectrum extents and signal-to-noise ratios.
+  This comparison quantity is an average across the different continuum degrees, true TODs, and spectrum extents and signal-to-noise ratios.
   The higher the fraction is, the better---a value of 1.0 means the method on the $x$-axis is at least as precise/accurate as the method on the $y$-axis for every input parameter set.
   }
   \label{fig:outcomes-summary}
@@ -479,7 +466,7 @@ The RMSEs for each combination of input parameter set and continuum placement me
   \label{fig:demonstration-fit}
 \end{figure}
 
-{\color{red} \bf
+{ \bf
 In this section, we analyze absorption features in using continuum marginalization in a case where all continuum placement methods should agree.
 The absorption features are due to {C \small{I}} in the Large Magellanic Cloud (LMC).
 The data are spectra of the LMC stars Sk-67 5, Sk-68 73, and Sk-70 115 taken with the Space Telescope Imaging Spectrograph (STIS) \citep{1998PASP..110.1183W} on board the \emph{Hubble Space Telescope} (\emph{HST}) using the E140H grating ($R \sim 114,000$).
@@ -513,7 +500,7 @@ To be able to compare results produced by continuum marginalization against the 
 \section{Discussion}
 \label{sec:discussion}
 \subsection{Assumptions and consequences}
-{\color{red}\bf
+{\bf
 The explicit assumptions of the analytic marginalization method are that the continuum is a linear combination of basis functions, that the prior on the coefficients of this linear combination is the improper uniform or multivariate normal distribution, that residuals between the data and model are normally distributed, and that the covariance matrix of the residuals does not depend on the continuum.
 It is obvious that these assumptions do not hold in a strict sense for any dataset.
 For example, both possible priors require that there not be constraints on the coefficients, meaning that negative continuum values must be allowed even though no background source produces negative flux.
@@ -522,7 +509,7 @@ This issue is also not unique to continuum marginalization, analytic or not.
 Describing residuals with a normal distribution, as is conventionally done with spectra given in continuous rate units such as flux, allows negative models values.
 }
 
-{\color{red}\bf
+{\bf
 A less trivial example are data in the low photon count regime.
 Depending on whether a spectrum is left in terms of photons or converted to a rate (or further transformed into e.g. a flux) and on whether and how background subtraction is done, the value of a low photon count measurement is best described by a Poisson, Skellam, Gamma, or difference-of-Gammas distribution.
 All of these distributions converge to the normal distribution as the number of photons grows, but are poorly approximated by it at low counts.
@@ -540,14 +527,14 @@ In short, improvements in continuum modeling cannot solve problems of absorption
 
 
 The continuum models envisaged in this work will usually be effective descriptions rather than (often non-linear) physical descriptions.
-{\color{red} \bf The continua of most background sources that are used for absorption spectroscopy can be approximated in this way.}
+{ \bf The continua of most background sources that are used for absorption spectroscopy can be approximated in this way.}
 Examples of sources with slowly varying continua include quasars and (particularly rapidly rotating) hot stars.
 With flexible linear models such as splines, it is even possible to describe more complicated pseudo-continua such as stellar wind lines.
 For even more complicated pseudo-continua such as those of cool stars \citep[e.g.]{Zasowski:2015hi}, it is necessary to use a non-linear model.
 Marginalizable linear models can still be useful even in this case as a way of introducing small corrections for pseudo-continuum features that are not perfectly described by the non-linear model.
 
 
-{\color{red}
+{
 \subsection{Informative priors are valuable and realistically obtainable}
 + remind reader that I've shown that having an informative prior can be almost as good as knowing the true continuum
 
@@ -628,7 +615,7 @@ scipy \citep{SciPy}
 
 \appendix
 
-{\color{red} \bf
+{ \bf
 \section{Convergence and effective sample generation rate of MCMC}
 \label{sec:MCMC-efficiency}
 
@@ -651,7 +638,7 @@ scipy \citep{SciPy}
   Relative efficiency of MCMC with analytic and numerical continuum parameter marginalization for absorption line analysis problems with different complexities.
   The relative efficiency is the ratio of the number of independent samples, $n_{\rm ind}$, generated in the same amount of time by the two marginalization approaches; $n_{\rm ind}^{(m)}$ uses the analytically marginalized likelihood, $n_{\rm ind}^{(u)}$ uses the unmarginalized likelihood.
   The larger the relative efficiency, the more independent samples generated by analytic marginalization.
-  Line colors and markers correspond to different continuum parameterizations: 1st order polynomial (black squares), 2nd order polynomial (blue circles), 3rd order polynomial (orange triangles).
+  Line colors and markers correspond to different continuum parameterizations: degree 1 polynomial (black squares), degree 2 polynomial (blue circles), degree 3 polynomial (orange triangles).
   Line styles indicate whether a non-trivial LSF is used in the analysis.
   The relative efficiency is shown as a function of the number of spectral regions being analyzed simultaneously; each spectral region has its own set of continuum parameters.
   The relative efficiency and the problem setup are discussed in more detail in Section \ref{sec:MCMC-efficiency}.
@@ -671,7 +658,7 @@ If the goal is instead to estimate some value at high precision, the burn-in per
 
 We consider a case where there are $N$ absorption lines with shared central velocities and widths and independent column densities.
 Each absorption line is in a different spectral region.
-The continuum in each spectral region is a polynomial of order $M$.
+The continuum in each spectral region is a polynomial of degree $M$.
 The marginalized likelihood has $2 + N$ absorption line parameters.
 The unmarginalized likelihood has $2 + N$ absorption line parameters and $N \times M$ continuum parameters.
 We use the \texttt{emcee} implementation of the Goodman and Weare affine-invariant MCMC ensemble sampler to generate draws from the posterior corresponding to each of these likelihoods.
@@ -683,7 +670,7 @@ If the instances have all converged, these two variances should be approximately
 We run ten MCMC instances for 12800 (per-walker) steps and compute the Rubin-Gelman statistic from the second half of sub-chains of length $2^p \times 100$ for $p=0, 1, \ldots, 7$.
 $\hat{R}$ is computed separately for each parameter.
 Following common usage, we consider convergence to be reached when the $\hat{R}$ of all parameters is less than $1.1$.
-We run this test for 1, 2, and 3 regions and absorption lines assuming a continuum of order 1.
+We run this test for 1, 2, and 3 regions and absorption lines assuming a continuum of degree 1.
 The value of the $\hat{R}$ as a function of (total) number of steps is shown in Figure \ref{fig:convergence-comparison}.
 When there is a single region and line, the MCMC marginalization chain takes twice as many steps as the analytic marginalization chain to converge; when there are two regions, it takes eight times as many steps; when there are three, the MCMC marginalization chain has not converged by the maximum chain length of 12800 while the analytic marginalization chain converges within 1600 steps.
 
@@ -695,10 +682,10 @@ From this starting point, we run MCMC with the unmarginalized likelihood for 400
 We then compute the average integrated autocorrelation times $\tau_f$ of the walkers in both chains.
 The number of independent samples per unit time is $n_i = \left(\tau_f \, t_s \right)^{-1}$.
 
-We compute $n_i$ for a number of regions $N = 1, 2, \ldots, 6$, continua of polynomial order $M=$ 1, 2, and 3, and either a trivial LSF or a banded LSF.
+We compute $n_i$ for a number of regions $N = 1, 2, \ldots, 6$, continua of polynomial degree $M=$ 1, 2, and 3, and either a trivial LSF or a banded LSF.
 The ratio $n_{ind}^{(\text{m})} / n_{ind}^{(\text{u})}$ for each of these cases is shown in Figure \ref{fig:efficiency-comparison}.
 When this ratio is greater than 1, running MCMC with the marginalized likelihood for a fixed amount of time will produce more independent samples than running MCMC with the unmarginalized likelihood for the same amount of time.
-The greater the number of regions and the order of the continuum, the greater the efficiency advantage of the marginalized likelihood over the unmarginalized likelihood.
+The greater the number of regions and the degree of the continuum, the greater the efficiency advantage of the marginalized likelihood over the unmarginalized likelihood.
 This advantage will not depend on the number of datapoints in each spectral region so long as the LSF is trivial or banded, since in these cases the evaluation time of both likelihoods grows linearly with dataset length (see Section \ref{sec:scaling}).
 }
 
