@@ -401,53 +401,40 @@ The total optical depth of a line is equal to the product of the column density 
 The difference of the logarithms of a pair of total optical depths is therefore equal to the difference of the logarithms of the corresponding column densities---the multiplicative constant factors become additive and cancel.
 
 The RMSEs for each combination of input parameter set and continuum placement method are shown in Figures \ref{fig:outcomes-CO-1} and \ref{fig:outcomes-CO-2}.
-- one way to summarize the performance of the different methods relative to each other is to ask in what fraction of the cases is the RMSE of one method less than or equal to the RMSE of a different method.
-- this summary is shown in Figure \ref{fig:outcomes-summary}.
+One way to summarize these results across the tested parameter space is to compare the performance of each method relative to the performance of each other method.
+To do this quantitatively, we calculate the fraction of cases in which the RMSE of method A is less than or equal to the RMSE of method B.
+A visual representation of this relative performance summary is shown in Figure \ref{fig:outcomes-summary}.
 
-- a summary of the performance of the different methods relative to each other is shown in Figure \ref{fig:outcomes-summary}.
-- Continuum marginalization with a correct informative prior (TC-Cov) or correct informative prior over priors (MC-Cov) are the continuum placement methods with the best average performance across the test cases.
-- Continuum marginalization with an uninformative prior is, on average, equivalent to or slightly worse than simultaneously fitting continuum and line parameters with no additional information.
+The two informed continuum marginalization methods, TCov-MC and MCov-MC, consistently yield the lowest RMSEs of all the continuum placement methods.
+For about 80\% of the fixed input parameter combinations, TCov-MC and MCov-MC perform as well as the known-continuum reference case, TC.
+Informed continuum fitting, TR-FC, performs more poorly than informed marginalization but better than both uninformed fitting and uninformed marginalization.
+Finally, uninformed fitting, FC, performs better on average than uninformed marginalization, DCov-MC.
 
-- below, we discuss aspects of these results in greater detail.
-\emph{The RMSE of case TC has no contribution from continuum placement uncertainty.}
-- this is true by construction---there is no continuum placement uncertainty when the true continuum is known.
-- the difference between the RMSEs of a continuum placement method and case TC is the result of continuum placement uncertainty.
+\emph{The value of different kinds of prior continuum information.}
+The different methods combine prior and observed continuum information.
+The performance of the methods reflects the value of the prior information available to them and the efficiency with which they extract continuum information from the observed spectrum.
+
+By definition, case TC has as much continuum information as it is possible to have.
+The fact that methods TCov-MC and MCov-MC perform almost as well as case TC suggests that the accurate priors used in these methods are almost as informative as knowing the actual continuum.
+These particular priors are not so constraining that all continuum realizations would be indistinguishable.
+The (clearly distinguishable) continua of the spectra shown in Figure \ref{fig:artificial-data-eg} were generated from the prior used in method TCov-MC.
+The prior used by method MCov-MC is less specific, but apparently no worse, than that of TCov-MC.
+The fact that these priors are so informative is noteworthy because it is, in many cases, possible to infer them; this point is discussed further in Section REFTKTK.
+
+The performance of method TR-FC suggests that knowing where the spectrum is free of absorption has value, but not as much as an accurate prior on the continuum shape.
+The value of this information is greatest for parameter sets with the lowest TOD, i.e. the least contrast between the continuum and absorption.
 
 \emph{Solutions with RMSEs that are lower than those of the TC solution are biased.}
-- for some combinations of input parameters with low SNRs, there are methods whose RMSEs are lower than that of TC.
-- in all of these cases, these methods produce results that have high biases and low variances.
-- they are consistently snapping to solutions that are incorrect by an amount that is small relative to the scatter in the less-biased TC solution.
-- this bias is favorable for those particular true line parameters, but may be unfavorable for other values of the true line parameters.
-
-\emph{A correct informative prior over continuum parameters is almost as useful as knowledge of the actual continuum parameters.}
-- the two methods with the best over all performance are TCov-MC and MCov-MC.
-- these methods yield total opacity RMSEs that are close to those of the known continuum case for every value of the input parameters.
-- this is not true of any of the other methods, including DCov-MC.
-- since the prior is the only difference between the methods TCov-MC and DCov-MC, it must be the reason for TCov-MCs good performance.
-
-- what the prior for method TCov-MC provides is a (correct) distribution of plausible continuum parameter values.
-- furthermore, the fact that MCov-MC performs as well as TCov-MC means that knowing a distribution over plausible distributions of plausible continuum parameters can be sufficient.
-- the practical significance of these observations is that it is not possible do determine a true continuum but it is possible, in some cases, to determine accurate priors or accurate distributions over priors.
-- this point is expanded on in Section TKTK.
-
-
-\emph{Continuum marginalization with an uninformative prior performs similarly to simultaneously fitting for continuum and line parameters.}
-- at most input parameter values, the RMSEs of these two methods are indistinguishable.
-- at the lowest SNRs considered, which method yields a lower RMSE varies from case to case.
-- marginalizing over continuum parameters, in and of itself, does not improve the accuracy or precision of the recovered line parameters.
-
-\emph{Perfect knowledge of the line free region is useful, but not as useful as an informative prior over continuum parameter priors.}
-- method TR-FC yields RMSEs than are greater than or equal to those of the informative continuum marginalization methods but are generally less than those of continuum fitting or marginalization with no additional information.
-- its advantage over methods FC and DCov-MC increases as the contrast between the absorption and the continuum decreases, i.e. as the total optical depth decreases.
-- this method is meant to represent the common practice of fitting a continuum to a manually selected absorption-free spectral region, interpolating over the absorption, and separately fitting for absorption line parameters.
-- providing the location of the absorption is clearly useful, since it allows better performance than simultaneously fitting for continuum and absorption line parameters, but appears to be less useful than information about the distribution of continuum parameters.
-- if obtaining such information is impossible, manually selecting absorption-free spectral regions is the best method.
-
+There is a small number of fixed input parameter combinations for which the RMSE of method FC is lower than that of case TC.
+All of these combinations have low SNRs, small TODs, and short continuum extents.
+This can be explained by the fact that much of the RMSE of method FC for these combinations is due to bias, rather than variance.
+Method FC is consistently finding solutions that are incorrect by an amount that is small relative to the scatter in the less-biased TC solution.
+This bias is favorable for those particular true line parameters, but may be unfavorable for other values of the true line parameters.
 
 \emph{Continuum marginalization is not substantially slower than continuum fitting.}
-- on a single core of a 2.2 GHz Intel i7 processor, obtaining line parameters from 2000 spectra took approximately 2 seconds in case TC, 5 seconds with method TR-FC, 10 seconds with methods MCov-MC and DCov-MC, 15 seconds with method FC, and 20 seconds with method MCov-MC.
-- even though method TR-FC is a factor of 2-4 as fast as the other continuum placement methods once absorption is masked, the biggest time investment in all of the methods will be the human interaction time required to locate lines and define fitting regions and, in the case of TR-FC, absorption masks.
-
+On a single core of a 2.2 GHz Intel i7 processor, obtaining line parameters for 2000 spectra took approximately 2 seconds in case TC, 5 seconds with method TR-FC, 10 seconds with methods MCov-MC and DCov-MC, 15 seconds with method FC, and 20 seconds with method MCov-MC.
+Method TR-FC is a factor of 2-4 as fast as the other continuum placement methods once absorption is masked.
+When analyzing actual observations, this advantage would be outweighted by the human interaction time required to define absorption masks.
 }
 
 
